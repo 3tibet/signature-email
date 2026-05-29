@@ -794,10 +794,10 @@ function genClassic(d, color, name) {
   if (d.company)  info += `<div style="font-size:12px;color:#aaa;margin-bottom:8px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
 
   const lines = [];
-  if (d.phone)   lines.push(`${cIcon('phone', color)}<a href="tel:${esc(d.phone)}" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
-  if (d.email)   lines.push(`${cIcon('email', color)}<a href="mailto:${esc(d.email)}" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
-  if (d.website) lines.push(`${cIcon('web', color)}<a href="${esc(d.website)}" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
-  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" style="color:${color};text-decoration:none">${esc(d.address)}</a>`);
+  if (d.phone)   lines.push(`${cIcon('phone', color)}<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
+  if (d.email)   lines.push(`${cIcon('email', color)}<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
+  if (d.website) lines.push(`${cIcon('web', color)}<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a>`);
   if (lines.length)
     info += `<div style="font-size:12px;color:#555;line-height:2;font-family:Arial,sans-serif">${lines.join('<br>')}</div>`;
 
@@ -805,7 +805,7 @@ function genClassic(d, color, name) {
   if (icons) info += `<div style="margin-top:10px">${icons}</div>`;
 
   if (d.ctaText && d.ctaLink)
-    info += `<div style="margin-top:12px"><a href="${esc(d.ctaLink)}" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
+    info += `<div style="margin-top:12px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
 
   if (photo) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
@@ -834,14 +834,14 @@ function genModern(d, color, name) {
     : '';
 
   const lines = [];
-  if (d.phone)   lines.push(`${cIcon('phone', color)}<a href="tel:${esc(d.phone)}" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
-  if (d.email)   lines.push(`${cIcon('email', color)}<a href="mailto:${esc(d.email)}" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
-  if (d.website) lines.push(`${cIcon('web', color)}<a href="${esc(d.website)}" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
-  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.address)}</a>`);
+  if (d.phone)   lines.push(`${cIcon('phone', color)}<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
+  if (d.email)   lines.push(`${cIcon('email', color)}<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
+  if (d.website) lines.push(`${cIcon('web', color)}<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.address)}</a>`);
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && d.ctaLink)
-    ? `<div style="margin-top:10px"><a href="${esc(d.ctaLink)}" style="display:inline-block;background:${color};color:white;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:10px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   const photoCell = photo ? `<td style="padding-right:14px;vertical-align:middle">${photo}</td>` : '';
@@ -884,13 +884,13 @@ function genMinimal(d, color, name) {
     : '';
 
   const parts = [];
-  if (d.phone)   parts.push(`<a href="tel:${esc(d.phone)}" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
-  if (d.email)   parts.push(`<a href="mailto:${esc(d.email)}" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
-  if (d.website) parts.push(`<a href="${esc(d.website)}" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (d.phone)   parts.push(`<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
+  if (d.email)   parts.push(`<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
+  if (d.website) parts.push(`<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && d.ctaLink)
-    ? `<div style="margin-top:8px"><a href="${esc(d.ctaLink)}" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:8px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   let inner = '';
@@ -898,7 +898,7 @@ function genMinimal(d, color, name) {
   if (d.jobTitle) inner += `<div style="font-size:12px;color:#888;margin-bottom:2px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>`;
   if (d.company)  inner += `<div style="font-size:11.5px;color:#aaa;margin-bottom:6px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
   if (parts.length) inner += `<div style="font-size:12px;color:#666;margin-bottom:6px;font-family:Arial,sans-serif">${parts.join(' · ')}</div>`;
-  if (d.address)  inner += `<div style="font-size:12px;color:${color};margin-bottom:6px;font-family:Arial,sans-serif">${cIcon('pin', color)}<a href="${mapsLink(d.address)}" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
+  if (d.address)  inner += `<div style="font-size:12px;color:${color};margin-bottom:6px;font-family:Arial,sans-serif">${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
   if (icons)      inner += `<div style="margin-bottom:6px">${icons}</div>`;
   inner += cta;
 
@@ -930,14 +930,14 @@ function genVertical(d, color, name) {
   const sep = `<div style="height:1px;background:#e8e8e8;margin:10px 0"></div>`;
 
   let contact = '';
-  if (d.phone)   contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('phone',color)}<a href="tel:${esc(d.phone)}" style="color:${color};text-decoration:none">${esc(d.phone)}</a></div>`;
-  if (d.email)   contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('email',color)}<a href="mailto:${esc(d.email)}" style="color:${color};text-decoration:none">${esc(d.email)}</a></div>`;
-  if (d.website) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('web',color)}<a href="${esc(d.website)}" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//,''))}</a></div>`;
-  if (d.address) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('pin',color)}<a href="${mapsLink(d.address)}" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
+  if (d.phone)   contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('phone',color)}<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a></div>`;
+  if (d.email)   contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('email',color)}<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a></div>`;
+  if (d.website) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('web',color)}<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//,''))}</a></div>`;
+  if (d.address) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('pin',color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && d.ctaLink)
-    ? `<div style="margin-top:14px"><a href="${esc(d.ctaLink)}" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:14px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;max-width:300px;width:100%">
