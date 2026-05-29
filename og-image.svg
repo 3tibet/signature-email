@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#002d6e"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="1080" cy="90"  r="260" fill="white" fill-opacity="0.04"/>
+  <circle cx="90"   cy="540" r="200" fill="white" fill-opacity="0.04"/>
+  <circle cx="960"  cy="590" r="110" fill="white" fill-opacity="0.04"/>
+
+  <!-- ── LEFT CONTENT ── -->
+
+  <!-- Envelope icon -->
+  <rect x="80" y="88" width="72" height="54" rx="8" fill="none" stroke="white" stroke-width="3" stroke-opacity="0.85"/>
+  <polyline points="80,88 116,122 152,88" fill="none" stroke="white" stroke-width="3" stroke-opacity="0.85" stroke-linejoin="round"/>
+
+  <!-- Title -->
+  <text x="80" y="220" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="white">G&#233;n&#233;rateur de</text>
+  <text x="80" y="285" font-family="Arial, Helvetica, sans-serif" font-size="56" font-weight="700" fill="white">Signature Email</text>
+
+  <!-- Accent bar -->
+  <rect x="80" y="306" width="90" height="5" rx="2.5" fill="white" fill-opacity="0.45"/>
+
+  <!-- Tagline -->
+  <text x="80" y="356" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="rgba(255,255,255,0.72)">Professionnel &#183; Gratuit &#183; Sans inscription</text>
+
+  <!-- Bullet points -->
+  <circle cx="92" cy="406" r="5" fill="white" fill-opacity="0.55"/>
+  <text x="112" y="413" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="rgba(255,255,255,0.68)">4 mod&#232;les personnalisables</text>
+
+  <circle cx="92" cy="444" r="5" fill="white" fill-opacity="0.55"/>
+  <text x="112" y="451" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="rgba(255,255,255,0.68)">Compatible Gmail, Outlook, Apple Mail&#8230;</text>
+
+  <circle cx="92" cy="482" r="5" fill="white" fill-opacity="0.55"/>
+  <text x="112" y="489" font-family="Arial, Helvetica, sans-serif" font-size="19" fill="rgba(255,255,255,0.68)">100&#160;% dans votre navigateur</text>
+
+  <!-- URL badge -->
+  <rect x="80" y="534" width="290" height="48" rx="24" fill="white" fill-opacity="0.14"/>
+  <text x="225" y="565" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="white" text-anchor="middle">signature.10dix.fr</text>
+
+  <!-- ── RIGHT CARD ── -->
+  <rect x="690" y="72" width="450" height="490" rx="18" fill="white" fill-opacity="0.97"/>
+
+  <!-- Card top bar -->
+  <rect x="690" y="72" width="450" height="50" rx="18" fill="#efefef"/>
+  <rect x="690" y="98" width="450" height="24" fill="#efefef"/>
+  <circle cx="720" cy="97" r="8" fill="#ff5f57"/>
+  <circle cx="746" cy="97" r="8" fill="#ffbd2e"/>
+  <circle cx="772" cy="97" r="8" fill="#28ca41"/>
+  <text x="840" y="102" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#aaa">Nouvel email &#8212; aper&#231;u</text>
+
+  <!-- Email body lines -->
+  <rect x="718" y="140" width="190" height="9" rx="4.5" fill="#eee"/>
+  <rect x="718" y="158" width="290" height="9" rx="4.5" fill="#eee"/>
+  <rect x="718" y="176" width="250" height="9" rx="4.5" fill="#eee"/>
+  <rect x="718" y="194" width="210" height="9" rx="4.5" fill="#eee"/>
+
+  <!-- Separator -->
+  <rect x="718" y="224" width="402" height="1" fill="#e8e8e8"/>
+
+  <!-- Photo -->
+  <circle cx="754" cy="278" r="30" fill="#dbeafe"/>
+  <text x="754" y="286" font-family="Arial, Helvetica, sans-serif" font-size="26" text-anchor="middle" fill="#93c5fd">&#128100;</text>
+
+  <!-- Brand line -->
+  <rect x="798" y="250" width="3" height="90" rx="1.5" fill="#2563EB"/>
+
+  <!-- Name / title / company -->
+  <text x="814" y="272" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#2563EB">Jean DUPONT</text>
+  <text x="814" y="292" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#777">Directeur Commercial</text>
+  <text x="814" y="308" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#aaa">Acme Corp</text>
+
+  <!-- Contact lines -->
+  <rect x="814" y="322" width="9" height="9" rx="2" fill="#93c5fd"/>
+  <text x="830" y="331" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#555">+33 6 12 34 56 78</text>
+
+  <rect x="814" y="340" width="9" height="9" rx="2" fill="#93c5fd"/>
+  <text x="830" y="349" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#555">jean@exemple.fr</text>
+
+  <rect x="814" y="358" width="9" height="9" rx="2" fill="#93c5fd"/>
+  <text x="830" y="367" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#555">www.exemple.fr</text>
+
+  <!-- Social mini icons -->
+  <rect x="814" y="383" width="24" height="24" rx="6" fill="#0077B5"/>
+  <rect x="844" y="383" width="24" height="24" rx="6" fill="#111"/>
+  <rect x="874" y="383" width="24" height="24" rx="6" fill="#E1306C"/>
+  <rect x="904" y="383" width="24" height="24" rx="6" fill="#1877F2"/>
+
+  <!-- CTA button -->
+  <rect x="718" y="428" width="175" height="36" rx="7" fill="#2563EB"/>
+  <text x="805" y="451" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="700" fill="white" text-anchor="middle">&#128197; Prendre RDV</text>
+
+  <!-- Templates label -->
+  <text x="915" y="508" font-family="Arial, Helvetica, sans-serif" font-size="11" fill="#ccc" text-anchor="middle">4 mod&#232;les disponibles</text>
+
+  <!-- 10DIX badge -->
+  <rect x="690" y="526" width="450" height="36" rx="0" fill="#f7f7f7"/>
+  <rect x="690" y="526" width="450" height="36" rx="18" fill="#f7f7f7"/>
+  <rect x="690" y="526" width="450" height="18" fill="#f7f7f7"/>
+  <text x="915" y="549" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#bbb" text-anchor="middle">cr&#233;&#233; par 10DIX</text>
+
+  <!-- Footer credit -->
+  <text x="600" y="610" font-family="Arial, Helvetica, sans-serif" font-size="15" fill="rgba(255,255,255,0.3)" text-anchor="middle">cr&#233;&#233; avec &#128153; par 10DIX &#8212; signature.10dix.fr</text>
+</svg>
