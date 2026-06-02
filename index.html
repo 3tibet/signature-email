@@ -588,7 +588,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
     <div class="page-footer">
       <div class="contact-block">
         <span>Un problème ? une suggestion ?</span>
-        <a href="mailto:fabien@10dix.fr" class="contact-btn">Contact</a>
+        <a href="mailto:fabien@10dix.fr" class="contact-btn" id="contactBtn" onclick="handleContact(event)">Contact</a>
       </div>
       <div>créé avec 💙 par <a href="https://www.10dix.fr" target="_blank" rel="noopener">10DIX</a></div>
     </div>
@@ -1052,6 +1052,24 @@ async function shareInstagram(btn) {
     btn.title = 'Lien copié !';
     setTimeout(() => { btn.style.opacity = ''; btn.title = origTitle; }, 2500);
   } catch { prompt('Copiez ce lien et partagez-le sur Instagram :', SITE_URL); }
+}
+
+// ── Contact fallback ──────────────────────────────────
+function handleContact(e) {
+  const btn = document.getElementById('contactBtn');
+  // Si mailto: n'ouvre rien (pas de client configuré), on affiche l'adresse
+  setTimeout(() => {
+    if (!document.hidden && document.hasFocus()) {
+      const orig = btn.textContent;
+      btn.textContent = 'fabien@10dix.fr';
+      btn.style.letterSpacing = '-0.3px';
+      try { navigator.clipboard.writeText('fabien@10dix.fr'); } catch {}
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.letterSpacing = '';
+      }, 3500);
+    }
+  }, 500);
 }
 
 // ── Init ─────────────────────────────────────────────
