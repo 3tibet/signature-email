@@ -1,11 +1,13 @@
 # signature-email
 
-[English](README.md) | Français · [Docs et personnalisation sur la page de destination](https://github.com/3tibet/signature-email) · [Offrez-moi un café](https://www.buymeacoffee.com/)
+[English](README.md) | Français · [Docs et personnalisation sur la page de destination](https://github.com/3tibet/signature-email)
+
+<a href="https://www.buymeacoffee.com/10_Dix" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41" width="150"></a>
 
 **signature-email** est un générateur de signatures d'e-mails ultra-léger et responsive pour vos messageries. Glissez un simple script pour obtenir des signatures HTML impeccables, des icônes de réseaux sociaux cliquables, une gestion dynamique des couleurs, un export JSON et un copier-coller direct dans Gmail, Outlook ou Apple Mail. Aucun plug-in ni serveur requis.
 
 ### Pour qui ?
-* **Agences et freelances :** Générez des signatures professionnelles et standardisées pour vos clients en quelques secondes, sans avoir à manipuler du code HTML complexe.
+* **Agences et freelances :** Génerez des signatures professionnelles et standardisées pour vos clients en quelques secondes, sans avoir à manipuler du code HTML complexe.
 * **Équipes RH et Communication :** Déployez et partagez facilement une identité visuelle unifiée pour tous les collaborateurs directement depuis le navigateur.
 
 ### Fonctionnalités principales
