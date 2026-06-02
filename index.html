@@ -601,7 +601,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <span>Un problème ? une suggestion ?</span>
         <span class="contact-wrapper">
           <a href="mailto:fabien@10dix.fr" class="contact-btn" id="contactBtn" onclick="handleContact(event)">Contact</a>
-          <span class="contact-toast" id="contactToast">Adresse email copiée !</span>
+          <span class="contact-toast" id="contactToast">fabien@10dix.fr — copiée !</span>
         </span>
       </div>
       <div>créé avec 💙 par <a href="https://www.10dix.fr" target="_blank" rel="noopener">10DIX</a></div>
@@ -1075,7 +1075,13 @@ function handleContact(e) {
       try { navigator.clipboard.writeText('fabien@10dix.fr'); } catch {}
       const toast = document.getElementById('contactToast');
       toast.style.opacity = '1';
-      setTimeout(() => { toast.style.opacity = '0'; }, 2500);
+      function closeToast(ev) {
+        if (!ev.target.closest('.contact-wrapper')) {
+          toast.style.opacity = '0';
+          document.removeEventListener('click', closeToast, true);
+        }
+      }
+      setTimeout(() => document.addEventListener('click', closeToast, true), 100);
     }
   }, 500);
 }
