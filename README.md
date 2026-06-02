@@ -9,6 +9,7 @@
 ### Pour qui ?
 * **Agences et freelances :** Génerez des signatures professionnelles et standardisées pour vos clients en quelques secondes, sans avoir à manipuler du code HTML complexe.
 * **Équipes RH et Communication :** Déployez et partagez facilement une identité visuelle unifiée pour tous les collaborateurs directement depuis le navigateur.
+* **Tous les professionnels - et les particuliers -:**  Créer une signature qualitative et à votre image
 
 ### Fonctionnalités principales
 * **Signatures HTML universelles :** Structures basées sur des tableaux avec CSS inline, entièrement optimisées et testées pour Gmail, Outlook, Apple Mail, etc.
