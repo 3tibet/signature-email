@@ -210,7 +210,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   box-shadow: 0 2px 24px rgba(0,0,0,0.09); overflow: hidden;
   width: clamp(480px, 100%, 680px);
   max-width: 680px;
-  margin: 0 auto;
+  margin: 0;
   flex-shrink: 0;
 }
 .email-frame-bar {
@@ -588,6 +588,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
           <button class="btn btn-tab active" id="tabPreview" onclick="showTab('preview')">Aperçu</button>
           <button class="btn btn-tab" id="tabHtml" onclick="showTab('html')">Code HTML</button>
         </div>
+        <button class="btn btn-secondary" id="copyHtmlBtn" onclick="copyHtml()">Copier HTML</button>
         <button class="btn btn-primary" id="copyBtn" onclick="copySignature()">Copier la signature</button>
       </div>
     </div>
@@ -1178,6 +1179,27 @@ async function copySignature() {
       showTab('html');
       alert('Copiez le code HTML depuis la vue "Code HTML" et collez-le dans votre client email en mode source.');
     }
+  }
+}
+
+async function copyHtml() {
+  const d = getData();
+  const html = generateCompleteSignatureHTML(d);
+  const btn = document.getElementById('copyHtmlBtn');
+  const orig = btn.textContent;
+
+  const ok = () => {
+    btn.textContent = '✓ Copié';
+    btn.classList.add('btn-success');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('btn-success'); }, 2500);
+  };
+
+  try {
+    await navigator.clipboard.writeText(html);
+    ok();
+  } catch {
+    showTab('html');
+    alert('Impossible de copier automatiquement le HTML. Copiez-le depuis la vue "Code HTML".');
   }
 }
 
