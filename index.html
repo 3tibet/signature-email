@@ -30,6 +30,7 @@
 </script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+img { max-width: 100%; height: auto; display: block; }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1d1d1f; }
 
 .app { display: grid; grid-template-columns: 400px 1fr; height: 100vh; overflow: hidden; }
@@ -50,17 +51,61 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
   padding-bottom: 7px; border-bottom: 1px solid #f2f2f2;
 }
 
-.field { margin-bottom: 10px; }
+.field { margin-bottom: 10px; position: relative; }
 .field label { display: block; font-size: 12.5px; font-weight: 500; color: #555; margin-bottom: 4px; }
 .field input[type="text"],
 .field input[type="email"],
 .field input[type="tel"],
-.field input[type="url"] {
+.field input[type="url"],
+.field textarea {
   width: 100%; padding: 8px 11px; border: 1.5px solid #e8e8e8;
   border-radius: 8px; font-size: 13.5px; color: #1d1d1f;
   transition: border-color 0.15s; background: #fafafa;
 }
-.field input:focus { outline: none; border-color: var(--brand); background: white; }
+.field textarea {
+  width: 100%; padding: 10px 11px; border: 1.5px solid #e8e8e8;
+  border-radius: 8px; font-size: 13.5px; color: #1d1d1f;
+  transition: border-color 0.15s; background: #fafafa;
+  resize: vertical;
+}
+.field input:focus,
+.field textarea:focus { outline: none; border-color: var(--brand); background: white; }
+
+.info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: #f2f4f7;
+  color: #333;
+  cursor: pointer;
+  font-size: 13px;
+}
+.info-button:hover { background: #e8ecf5; }
+.tooltip-popup {
+  display: none;
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(360px, 100%);
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: white;
+  border: 1px solid #e2e5eb;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.08);
+  font-size: 12px;
+  line-height: 1.55;
+  color: #24292f;
+}
+.tooltip-popup.show { display: block; }
+.tooltip-popup ul { padding-left: 18px; margin: 8px 0; }
+.tooltip-popup li { margin-bottom: 6px; }
+.tooltip-popup p { margin: 8px 0; }
 
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -162,7 +207,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
 /* Email mockup */
 .email-frame {
   background: white; border-radius: 12px;
-  box-shadow: 0 2px 24px rgba(0,0,0,0.09); overflow: hidden; max-width: 680px;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.09); overflow: hidden;
+  width: clamp(480px, 100%, 680px);
+  max-width: 680px;
+  margin: 0 auto;
   flex-shrink: 0;
 }
 .email-frame-bar {
@@ -408,6 +456,34 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         <div class="field">
           <label>Adresse postale</label>
           <input type="text" id="address" placeholder="12 rue de la Paix, 75001 Paris" oninput="updatePreview()">
+        </div>
+        <div class="field">
+          <label>
+            Mentions légales
+            <button type="button" id="legalTooltipToggle" class="info-button" aria-expanded="false" aria-controls="legalTooltip" onclick="toggleLegalTooltip(event)" title="Plus d'informations">ℹ️</button>
+          </label>
+          <textarea id="mentionsLegal" rows="2" placeholder="SARL au capital de ..., RCS ..., SIREN ..." oninput="updatePreview()"></textarea>
+          <div class="tooltip-popup" id="legalTooltip" role="dialog" aria-hidden="true">
+            <p>En France, le Code de commerce impose que certaines informations apparaissent sur <strong>toutes les correspondances professionnelles</strong> (e-mails inclus).</p>
+            <p>Les éléments obligatoires sont :</p>
+            <ul>
+              <li>Dénomination sociale ou raison sociale.</li>
+              <li>Forme juridique (SARL, SAS, SA, etc.).</li>
+              <li>Adresse du siège social.</li>
+              <li>Numéro RCS suivi du greffe d’immatriculation.</li>
+              <li>Numéro SIREN.</li>
+              <li>Capital social (pour les sociétés à capital).</li>
+            </ul>
+            <p>Ces informations doivent apparaître dans la signature, tout comme elles figurent déjà sur les factures et devis. L’absence de ces mentions peut être sanctionnée par une amende.</p>
+            <p><strong>Cas particuliers</strong></p>
+            <ul>
+              <li><strong>Avocats</strong> : référence au barreau d’inscription.</li>
+              <li><strong>Experts-comptables</strong> : numéro d’inscription à l’Ordre.</li>
+              <li><strong>Médecins</strong> : numéro RPPS.</li>
+              <li><strong>Sociétés financières</strong> : numéro d’agrément ou autorité de contrôle.</li>
+              <li><strong>Associations</strong> : numéro RNA.</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -732,6 +808,7 @@ function getData() {
     jobTitle  : document.getElementById('jobTitle').value.trim(),
     company   : document.getElementById('company').value.trim(),
     address   : document.getElementById('address').value.trim(),
+    mentionsLegal: document.getElementById('mentionsLegal').value.trim(),
     website   : document.getElementById('website').value.trim(),
     phone     : document.getElementById('phone').value.trim(),
     email     : document.getElementById('email').value.trim(),
@@ -832,6 +909,7 @@ function genClassic(d, color, name) {
     info += `<div style="font-size:16px;font-weight:700;color:${color};margin-bottom:2px;font-family:Arial,sans-serif">${esc(name)}</div>`;
   if (d.jobTitle) info += `<div style="font-size:12.5px;color:#666;margin-bottom:2px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>`;
   if (d.company)  info += `<div style="font-size:12px;color:#aaa;margin-bottom:8px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
+  if (d.mentionsLegal) info += `<div style="font-size:11px;color:#777;margin-bottom:8px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
 
   const lines = [];
   if (d.phone)   lines.push(`${cIcon('phone', color)}<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
@@ -897,6 +975,7 @@ function genModern(d, color, name) {
             ${name ? `<div style="color:white;font-size:17px;font-weight:700;font-family:Arial,sans-serif">${esc(name)}</div>` : ''}
             ${d.jobTitle ? `<div style="color:rgba(255,255,255,0.78);font-size:12px;margin-top:2px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>` : ''}
             ${d.company  ? `<div style="color:rgba(255,255,255,0.78);font-size:11px;margin-top:1px;font-family:Arial,sans-serif">${esc(d.company)}</div>` : ''}
+            ${d.mentionsLegal ? `<div style="color:rgba(255,255,255,0.78);font-size:11px;margin-top:4px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>` : ''}
           </td>
           ${logoCell}
         </tr>
@@ -937,6 +1016,7 @@ function genMinimal(d, color, name) {
   if (name)       inner += `<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:1px;font-family:Arial,sans-serif">${esc(name)}</div>`;
   if (d.jobTitle) inner += `<div style="font-size:12px;color:#888;margin-bottom:2px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>`;
   if (d.company)  inner += `<div style="font-size:11.5px;color:#aaa;margin-bottom:6px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
+  if (d.mentionsLegal) inner += `<div style="font-size:11px;color:#777;margin-bottom:6px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
   if (parts.length) inner += `<div style="font-size:12px;color:#666;margin-bottom:6px;font-family:Arial,sans-serif">${parts.join(' · ')}</div>`;
   if (d.address)  inner += `<div style="font-size:12px;color:${color};margin-bottom:6px;font-family:Arial,sans-serif">${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
   if (icons)      inner += `<div style="margin-bottom:6px">${icons}</div>`;
@@ -986,12 +1066,34 @@ function genVertical(d, color, name) {
     ${name ? `<div style="font-size:16px;font-weight:700;color:${color};margin-top:10px;font-family:Arial,sans-serif">${esc(name)}</div>` : ''}
     ${d.jobTitle ? `<div style="font-size:12px;color:#888;margin-top:3px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>` : ''}
     ${d.company  ? `<div style="font-size:11.5px;color:#aaa;margin-top:1px;font-family:Arial,sans-serif">${esc(d.company)}</div>` : ''}
+    ${d.mentionsLegal ? `<div style="font-size:11px;color:#777;margin-top:4px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>` : ''}
     ${logo}
   </td></tr>
   ${contact || icons ? `<tr><td>${sep}${contact}${icons ? `<div style="margin-top:8px">${icons}</div>` : ''}</td></tr>` : ''}
   ${cta ? `<tr><td>${cta}</td></tr>` : ''}
 </table>`;
 }
+
+function toggleLegalTooltip(ev) {
+  ev.stopPropagation();
+  const popup = document.getElementById('legalTooltip');
+  const button = document.getElementById('legalTooltipToggle');
+  if (!popup || !button) return;
+  const show = !popup.classList.contains('show');
+  popup.classList.toggle('show', show);
+  button.setAttribute('aria-expanded', show.toString());
+  popup.setAttribute('aria-hidden', (!show).toString());
+}
+document.addEventListener('click', (ev) => {
+  const popup = document.getElementById('legalTooltip');
+  const button = document.getElementById('legalTooltipToggle');
+  if (!popup || !button) return;
+  if (popup.classList.contains('show') && !popup.contains(ev.target) && !button.contains(ev.target)) {
+    popup.classList.remove('show');
+    button.setAttribute('aria-expanded', 'false');
+    popup.setAttribute('aria-hidden', 'true');
+  }
+});
 
 // ── Main render ─────────────────────────────────────
 function generateHTML(d) {
