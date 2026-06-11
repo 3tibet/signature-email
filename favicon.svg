@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Fond blanc avec cercle -->
+  <circle cx="50" cy="50" r="50" fill="white"/>
+  
+  <!-- Plume bleue -->
+  <g transform="translate(50, 50)">
+    <!-- Tige de la plume -->
+    <path d="M 0 -20 Q 5 -10 8 0 Q 10 15 5 25" stroke="#2563EB" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Barbes gauche de la plume -->
+    <path d="M 0 -18 Q -12 -15 -18 -10" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 1 -12 Q -14 -8 -20 -2" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 2 -5 Q -14 -2 -20 5" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 3 3 Q -12 5 -18 12" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+    
+    <!-- Barbes droite de la plume -->
+    <path d="M 0 -18 Q 12 -15 18 -10" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 1 -12 Q 14 -8 20 -2" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 2 -5 Q 14 -2 20 5" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <path d="M 3 3 Q 12 5 18 12" stroke="#2563EB" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"/>
+  </g>
+</svg>
