@@ -775,11 +775,11 @@ function handleImage(type, input) {
     const src = e.target.result;
     if (type === 'photo') {
       photoData = src;
-      document.getElementById('photoPreview').innerHTML = `<img src="${src}" alt="Photo">`;
+      document.getElementById('photoPreview').innerHTML = `<img src="${src}" alt="Photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
       document.getElementById('photoRemove').style.display = 'block';
     } else {
       logoData = src;
-      document.getElementById('logoPreview').innerHTML = `<img src="${src}" alt="Logo" style="object-fit:contain">`;
+      document.getElementById('logoPreview').innerHTML = `<img src="${src}" alt="Logo" style="width:100%;height:100%;object-fit:contain">`;
       document.getElementById('logoRemove').style.display = 'block';
     }
     updatePreview();
@@ -899,10 +899,10 @@ function genClassic(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="82" height="82" style="border-radius:50%;object-fit:cover;display:block" alt="">`
+    ? `<img src="${photoSrc}" width="82" height="82" style="width:82px;height:82px;border-radius:50%;object-fit:cover;display:block" alt="">`
     : '';
   const logo = logoSrc
-    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:left"><img src="${logoSrc}" height="26" style="display:block;max-width:100px;object-fit:contain;margin:0" alt=""></div>`
+    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
     : '';
 
   let info = '';
@@ -946,10 +946,10 @@ function genModern(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="68" height="68" style="border-radius:50%;object-fit:cover;display:block;border:3px solid white" alt="">`
+    ? `<img src="${photoSrc}" width="68" height="68" style="width:68px;height:68px;border-radius:50%;object-fit:cover;display:block;border:3px solid white" alt="">`
     : '';
   const logo = logoSrc
-    ? `<img src="${logoSrc}" height="26" style="display:block;max-width:100px;object-fit:contain" alt="">`
+    ? `<img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain" alt="">`
     : '';
 
   const lines = [];
@@ -997,10 +997,10 @@ function genMinimal(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="58" height="58" style="border-radius:50%;object-fit:cover;display:block" alt="">`
+    ? `<img src="${photoSrc}" width="58" height="58" style="width:58px;height:58px;border-radius:50%;object-fit:cover;display:block" alt="">`
     : '';
   const logo = logoSrc
-    ? `<div style="margin-top:8px;text-align:left"><img src="${logoSrc}" height="26" style="display:block;max-width:100px;object-fit:contain;margin:0" alt=""></div>`
+    ? `<div style="margin-top:8px;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
     : '';
 
   const parts = [];
@@ -1043,10 +1043,10 @@ function genVertical(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="76" height="76" style="border-radius:50%;object-fit:cover;display:block;border:3px solid ${color}" alt="">`
+    ? `<img src="${photoSrc}" width="76" height="76" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;border:3px solid ${color}" alt="">`
     : '';
   const logo = logoSrc
-    ? `<div style="margin-top:10px"><img src="${logoSrc}" height="26" style="display:block;max-width:100px;object-fit:contain" alt=""></div>`
+    ? `<div style="margin-top:10px"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain" alt=""></div>`
     : '';
   const sep = `<div style="height:1px;background:#e8e8e8;margin:10px 0"></div>`;
 
