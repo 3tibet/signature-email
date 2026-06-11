@@ -899,7 +899,7 @@ function genClassic(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="82" height="82" style="width:82px;height:82px;border-radius:50%;object-fit:cover;display:block" alt="">`
+    ? `<img src="${photoSrc}" width="82" height="82" style="width:82px;height:82px;border-radius:50%;object-fit:cover;display:block;margin:0 auto" alt="">`
     : '';
   const logo = logoSrc
     ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
@@ -950,7 +950,7 @@ function genModern(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="68" height="68" style="width:68px;height:68px;border-radius:50%;object-fit:cover;display:block;border:3px solid white" alt="">`
+    ? `<img src="${photoSrc}" width="68" height="68" style="width:68px;height:68px;border-radius:50%;object-fit:cover;display:block;border:3px solid white;margin:0 auto" alt="">`
     : '';
   const logo = logoSrc
     ? `<img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain" alt="">`
@@ -1001,7 +1001,7 @@ function genMinimal(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="58" height="58" style="width:58px;height:58px;border-radius:50%;object-fit:cover;display:block" alt="">`
+    ? `<img src="${photoSrc}" width="58" height="58" style="width:58px;height:58px;border-radius:50%;object-fit:cover;display:block;margin:0 auto" alt="">`
     : '';
   const logo = logoSrc
     ? `<div style="margin-top:8px;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
@@ -1050,7 +1050,7 @@ function genVertical(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="76" height="76" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;border:3px solid ${color}" alt="">`
+    ? `<img src="${photoSrc}" width="76" height="76" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;border:3px solid ${color};margin:0 auto" alt="">`
     : '';
   const logo = logoSrc
     ? `<div style="margin-top:10px"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain" alt=""></div>`
