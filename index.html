@@ -904,6 +904,10 @@ function genClassic(d, color, name) {
   const logo = logoSrc
     ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
     : '';
+  // centered logo variant when shown under the photo (used in the left cell)
+  const logoUnderPhoto = logoSrc
+    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:center"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0 auto" alt=""></div>`
+    : '';
 
   let info = '';
   if (name)
@@ -926,10 +930,10 @@ function genClassic(d, color, name) {
   if (d.ctaText && d.ctaLink)
     info += `<div style="margin-top:12px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
 
-  if (photo) {
+    if (photo) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
   <tr>
-    <td style="padding-right:18px;vertical-align:top;border-right:3px solid ${color}">${photo}${logo}</td>
+    <td style="padding-right:18px;vertical-align:top;border-right:3px solid ${color}">${photo}${logoUnderPhoto}</td>
     <td style="padding-left:18px;vertical-align:top">${info}</td>
   </tr>
 </table>`;
@@ -1002,6 +1006,9 @@ function genMinimal(d, color, name) {
   const logo = logoSrc
     ? `<div style="margin-top:8px;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
     : '';
+  const logoUnderPhoto = logoSrc
+    ? `<div style="margin-top:8px;text-align:center"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0 auto" alt=""></div>`
+    : '';
 
   const parts = [];
   if (d.phone)   parts.push(`<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
@@ -1026,7 +1033,7 @@ function genMinimal(d, color, name) {
   if (photo) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
   <tr>
-    <td style="padding-right:14px;vertical-align:top">${photo}${logo}</td>
+    <td style="padding-right:14px;vertical-align:top">${photo}${logoUnderPhoto}</td>
     <td style="vertical-align:top;border-left:2px solid ${color};padding-left:14px">${inner}</td>
   </tr>
 </table>`;
