@@ -576,6 +576,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; b
         </div>
       </div>
 
+      <div class="section">
+        <div class="section-title">Import / Export JSON</div>
+        <div class="field" style="display:flex;gap:10px;flex-wrap:wrap">
+          <button type="button" class="btn btn-secondary" onclick="copyJson()">Copier JSON</button>
+          <button type="button" class="btn btn-secondary" onclick="loadJson()">Charger JSON</button>
+        </div>
+        <div style="margin-top:8px;font-size:12px;color:#666;">Utilisez ce JSON pour sauvegarder ou restaurer rapidement les données de signature.</div>
+      </div>
+
     </div>
   </div>
 
@@ -859,15 +868,16 @@ const SOCIALS = {
 };
 
 function socialIconsHTML(d) {
-  const nets = Object.keys(SOCIALS).filter(k => d[k]);
+  const nets = Object.keys(SOCIALS).filter(k => safeHref(d[k]));
   if (!nets.length) return '';
   const brandColor = d.color || '#2563EB';
   const cells = nets.map(k => {
     const s   = SOCIALS[k];
     const bg  = iconMode === 'brand' ? brandColor : s.bg;
-    const src = `https://api.iconify.design/${s.icon}.svg?color=%23ffffff`;
+    const href = safeHref(d[k]);
+    const src  = `https://api.iconify.design/${s.icon}.svg?color=%23ffffff`;
     return `<td style="padding:0 5px 0 0">` +
-      `<a href="${esc(d[k])}" target="_blank" style="text-decoration:none;display:block">` +
+      `<a href="${href}" target="_blank" rel="noopener" style="text-decoration:none;display:block">` +
       `<table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:${bg};width:26px;height:26px;border-radius:6px;text-align:center;vertical-align:middle">` +
       `<img src="${src}" width="16" height="16" alt="${k}" style="display:block;margin:5px auto">` +
       `</td></tr></table></a></td>`;
@@ -876,7 +886,70 @@ function socialIconsHTML(d) {
 }
 
 function esc(str) {
-  return str.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function normalizeUrl(url, allowMailToTel = false) {
+  if (!url) return null;
+  const trimmed = String(url).trim();
+  if (!trimmed) return null;
+
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (allowMailToTel && /^(mailto:|tel:)/i.test(trimmed)) return trimmed;
+  if (/^www\./i.test(trimmed)) return `https://${trimmed}`;
+  if (/^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(trimmed)) return `https://${trimmed}`;
+  return null;
+}
+
+function safeHref(url, allowMailToTel = false) {
+  const normalized = normalizeUrl(url, allowMailToTel);
+  return normalized ? esc(normalized) : null;
+}
+
+function copyJson() {
+  const btn = document.querySelector('button[onclick="copyJson()"]');
+  const orig = btn ? btn.textContent : 'Copier JSON';
+  const payload = JSON.stringify(getData(), null, 2);
+  navigator.clipboard.writeText(payload).then(() => {
+    if (!btn) return;
+    btn.textContent = '✓ Copié';
+    btn.classList.add('btn-success');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('btn-success'); }, 2500);
+  }).catch(() => {
+    prompt('Copiez ce JSON :', payload);
+  });
+}
+
+function loadJson() {
+  const raw = prompt('Collez le JSON de signature :');
+  if (!raw) return;
+  let payload;
+  try {
+    payload = JSON.parse(raw);
+  } catch (err) {
+    alert('JSON invalide. Veuillez réessayer.');
+    return;
+  }
+
+  const fields = [
+    'firstName','lastName','jobTitle','company','address','mentionsLegal',
+    'website','phone','email','linkedin','twitter','instagram','facebook',
+    'youtube','github','tiktok','ctaText','ctaLink','photoUrl','logoUrl'
+  ];
+
+  fields.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = payload[id] ? String(payload[id]) : '';
+  });
+
+  const color = payload.color ? parseColorInput(String(payload.color)) : null;
+  document.getElementById('brandColor').value = color || '#2563EB';
+  onColorInput(document.getElementById('brandColor').value);
+  updatePreview();
 }
 
 // ── Google Maps URL ────────────────────────────────
@@ -884,14 +957,23 @@ function mapsLink(address) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
+function normalizeImageUrl(url) {
+  if (!url) return null;
+  const trimmed = String(url).trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (/^www\./i.test(trimmed)) return `https://${trimmed}`;
+  return null;
+}
+
 // ── Google Drive URL → direct image URL ────────────
 function resolveImageUrl(url) {
   if (!url) return null;
-  // https://drive.google.com/file/d/FILE_ID/view  →  direct
-  const m = url.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/)
-         || url.match(/drive\.google\.com\/open\?id=([^&\s]+)/);
-  if (m) return `https://lh3.googleusercontent.com/d/${m[1]}`;
-  return url;
+  const trimmed = String(url).trim();
+  const m = trimmed.match(/drive\.google\.com\/file\/d\/([^\/\?]+)/)
+         || trimmed.match(/drive\.google\.com\/open\?id=([^&\s]+)/);
+  if (m) return normalizeImageUrl(`https://lh3.googleusercontent.com/d/${m[1]}`);
+  return normalizeImageUrl(trimmed);
 }
 
 // ── Template generators ─────────────────────────────
@@ -918,9 +1000,9 @@ function genClassic(d, color, name) {
   if (d.mentionsLegal) info += `<div style="font-size:11px;color:#777;margin-bottom:8px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
 
   const lines = [];
-  if (d.phone)   lines.push(`${cIcon('phone', color)}<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
-  if (d.email)   lines.push(`${cIcon('email', color)}<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
-  if (d.website) lines.push(`${cIcon('web', color)}<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (safeHref(d.phone, true))   lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
+  if (safeHref(d.email, true))   lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
+  if (safeHref(d.website)) lines.push(`${cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
   if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a>`);
   if (lines.length)
     info += `<div style="font-size:12px;color:#555;line-height:2;font-family:Arial,sans-serif">${lines.join('<br>')}</div>`;
@@ -928,8 +1010,8 @@ function genClassic(d, color, name) {
   const icons = socialIconsHTML(d);
   if (icons) info += `<div style="margin-top:10px">${icons}</div>`;
 
-  if (d.ctaText && d.ctaLink)
-    info += `<div style="margin-top:12px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
+  if (d.ctaText && safeHref(d.ctaLink))
+    info += `<div style="margin-top:12px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
 
     if (photo) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
@@ -958,14 +1040,14 @@ function genModern(d, color, name) {
     : '';
 
   const lines = [];
-  if (d.phone)   lines.push(`${cIcon('phone', color)}<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
-  if (d.email)   lines.push(`${cIcon('email', color)}<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
-  if (d.website) lines.push(`${cIcon('web', color)}<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (d.phone && safeHref('tel:' + d.phone, true)) lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
+  if (d.email && safeHref('mailto:' + d.email, true)) lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
+  if (safeHref(d.website)) lines.push(`${cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
   if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.address)}</a>`);
 
   const icons = socialIconsHTML(d);
-  const cta = (d.ctaText && d.ctaLink)
-    ? `<div style="margin-top:10px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+  const cta = (d.ctaText && safeHref(d.ctaLink))
+    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   const photoCell = photo ? `<td style="padding-right:14px;vertical-align:middle">${photo}</td>` : '';
@@ -1012,13 +1094,13 @@ function genMinimal(d, color, name) {
     : '';
 
   const parts = [];
-  if (d.phone)   parts.push(`<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
-  if (d.email)   parts.push(`<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
-  if (d.website) parts.push(`<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (d.phone && safeHref('tel:' + d.phone, true)) parts.push(`<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
+  if (d.email && safeHref('mailto:' + d.email, true)) parts.push(`<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
+  if (safeHref(d.website)) parts.push(`<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
 
   const icons = socialIconsHTML(d);
-  const cta = (d.ctaText && d.ctaLink)
-    ? `<div style="margin-top:8px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+  const cta = (d.ctaText && safeHref(d.ctaLink))
+    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   let inner = '';
@@ -1059,14 +1141,14 @@ function genVertical(d, color, name) {
   const sep = `<div style="height:1px;background:#e8e8e8;margin:10px 0"></div>`;
 
   let contact = '';
-  if (d.phone)   contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('phone',color)}<a href="tel:${esc(d.phone)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a></div>`;
-  if (d.email)   contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('email',color)}<a href="mailto:${esc(d.email)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a></div>`;
-  if (d.website) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('web',color)}<a href="${esc(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//,''))}</a></div>`;
+  if (d.phone && safeHref('tel:' + d.phone, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('phone',color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a></div>`;
+  if (d.email && safeHref('mailto:' + d.email, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('email',color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a></div>`;
+  if (safeHref(d.website)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('web',color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//,''))}</a></div>`;
   if (d.address) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('pin',color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
 
   const icons = socialIconsHTML(d);
-  const cta = (d.ctaText && d.ctaLink)
-    ? `<div style="margin-top:14px"><a href="${esc(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+  const cta = (d.ctaText && safeHref(d.ctaLink))
+    ? `<div style="margin-top:14px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;max-width:300px;width:100%">
@@ -1164,7 +1246,7 @@ function showTab(tab) {
 // ── Copy ─────────────────────────────────────────────
 async function copySignature() {
   const d = getData();
-  const html = generateCompleteSignatureHTML(d);
+  const html = generateHTML(d);
   const btn  = document.getElementById('copyBtn');
   const orig = btn.textContent;
 
@@ -1175,7 +1257,6 @@ async function copySignature() {
   };
 
   try {
-    // Try rich-text copy first (paste directly into Gmail/Outlook)
     const blob = new Blob([html], { type: 'text/html' });
     await navigator.clipboard.write([new ClipboardItem({ 'text/html': blob })]);
     ok();
