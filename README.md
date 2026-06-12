@@ -21,7 +21,8 @@
 1. Intégrez le script sur votre page web (ou via votre gestionnaire de tags).
 2. Saisissez les informations de l'utilisateur (coordonnées, liens réseaux sociaux, logo).
 3. Ajustez le design et la charte graphique depuis le panneau de configuration.
-4. Exportez le résultat ou copiez-le directement pour le coller dans les paramètres de votre client de messagerie.
+4. Exportez ou chargez votre configuration via JSON directement dans l'interface.
+5. Copiez le code HTML ou le rendu visuel pour le coller dans les paramètres de votre client de messagerie.
 
 ### Installation (copier/coller)
 Placez le script juste avant la balise de fermeture `</body>` pour vous assurer que le DOM est prêt. Si vous devez l'intégrer dans le `<head>`, ajoutez l'attribut `defer`.
