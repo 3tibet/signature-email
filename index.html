@@ -3,8 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Générateur de Signature Email</title>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Signature Email - 10DIX</title>
+<link rel="icon" id="favicon" type="image/svg+xml" href="/favicon.svg">
+<script>
+  ;(() => {
+    const favicon = document.getElementById('favicon');
+    if (!favicon) return;
+
+    const darkIcon = '/favicon-dark.svg';
+    const lightIcon = '/favicon-light.svg';
+    const testIcon = src => new Promise(resolve => {
+      const img = new Image();
+      img.onload = () => resolve(true);
+      img.onerror = () => resolve(false);
+      img.src = src;
+    });
+    const setIcon = src => { favicon.href = src; };
+
+    const updateIcon = async (isDark) => {
+      if (isDark) {
+        if (await testIcon(darkIcon)) return setIcon(darkIcon);
+        if (await testIcon(lightIcon)) return setIcon(lightIcon);
+      } else {
+        if (await testIcon(lightIcon)) return setIcon(lightIcon);
+        if (await testIcon(darkIcon)) return setIcon(darkIcon);
+      }
+    };
+
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) {
+      mq.addEventListener('change', event => updateIcon(event.matches));
+    }
+    updateIcon(mq.matches);
+  })();
+</script>
 <!-- Open Graph / Social sharing -->
 <meta property="og:type"        content="website">
 <meta property="og:url"         content="https://signature.10dix.fr">
