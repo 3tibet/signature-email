@@ -1017,11 +1017,11 @@ function genClassic(d, color, name) {
     ? `<img src="${photoSrc}" width="82" height="82" style="width:82px;height:82px;border-radius:50%;object-fit:cover;display:block;margin:0 auto" alt="">`
     : '';
   const logo = logoSrc
-    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
+    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:left"><img src="${logoSrc}" height="62" style="height:62px;display:block;border:0" alt=""></div>`
     : '';
   // centered logo variant when shown under the photo (used in the left cell)
   const logoUnderPhoto = logoSrc
-    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:center"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0 auto" alt=""></div>`
+    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:center"><img src="${logoSrc}" height="62" style="height:62px;display:block;margin:0 auto;border:0" alt=""></div>`
     : '';
 
   let info = '';
@@ -1032,8 +1032,8 @@ function genClassic(d, color, name) {
   if (d.mentionsLegal) info += `<div style="font-size:11px;color:#777;margin-bottom:8px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
 
   const lines = [];
-  if (safeHref(d.phone, true))   lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
-  if (safeHref(d.email, true))   lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
+  if (d.phone && safeHref('tel:' + d.phone, true))   lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
+  if (d.email && safeHref('mailto:' + d.email, true))   lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
   if (safeHref(d.website)) lines.push(`${cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
   if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a>`);
   if (lines.length)
@@ -1119,10 +1119,10 @@ function genMinimal(d, color, name) {
     ? `<img src="${photoSrc}" width="58" height="58" style="width:58px;height:58px;border-radius:50%;object-fit:cover;display:block;margin:0 auto" alt="">`
     : '';
   const logo = logoSrc
-    ? `<div style="margin-top:8px;text-align:left"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0" alt=""></div>`
+    ? `<div style="margin-top:8px;text-align:left"><img src="${logoSrc}" height="62" style="height:62px;display:block;border:0" alt=""></div>`
     : '';
   const logoUnderPhoto = logoSrc
-    ? `<div style="margin-top:8px;text-align:center"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain;margin:0 auto" alt=""></div>`
+    ? `<div style="margin-top:8px;text-align:center"><img src="${logoSrc}" height="62" style="height:62px;display:block;margin:0 auto;border:0" alt=""></div>`
     : '';
 
   const parts = [];
@@ -1168,7 +1168,7 @@ function genVertical(d, color, name) {
     ? `<img src="${photoSrc}" width="76" height="76" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;border:3px solid ${color};margin:0 auto" alt="">`
     : '';
   const logo = logoSrc
-    ? `<div style="margin-top:10px"><img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain" alt=""></div>`
+    ? `<div style="margin-top:10px"><img src="${logoSrc}" height="62" style="height:62px;display:block;border:0" alt=""></div>`
     : '';
   const sep = `<div style="height:1px;background:#e8e8e8;margin:10px 0"></div>`;
 
