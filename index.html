@@ -884,15 +884,42 @@ function hexToRgb(hex) {
   return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
 }
 
+function hexToHsl(hex) {
+  const { r, g, b } = hexToRgb(hex);
+  const rn = r / 255, gn = g / 255, bn = b / 255;
+  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+  const l = (max + min) / 2;
+  let h = 0, s = 0;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn: h = (gn - bn) / d + (gn < bn ? 6 : 0); break;
+      case gn: h = (bn - rn) / d + 2; break;
+      default: h = (rn - gn) / d + 4;
+    }
+    h *= 60;
+  }
+  return { h, s, l };
+}
+
 // Les icônes de contact ne sont pré-générées que pour les 8 couleurs prédéfinies
-// (PRESETS). Pour une couleur personnalisée, on prend la plus proche visuellement.
+// (PRESETS). Pour une couleur personnalisée, on prend la plus proche visuellement —
+// en comparant surtout la teinte (hue) : une distance RVB brute peut faire dévier
+// un bleu marine vers un preset cyan/turquoise qui n'a pas la même famille de couleur.
 function nearestPreset(hex) {
   if (PRESETS.some(p => p.toLowerCase() === hex.toLowerCase())) return hex;
-  const target = hexToRgb(hex);
+  const target = hexToHsl(hex);
   let best = PRESETS[0], bestDist = Infinity;
   for (const p of PRESETS) {
-    const rgb = hexToRgb(p);
-    const dist = (rgb.r - target.r) ** 2 + (rgb.g - target.g) ** 2 + (rgb.b - target.b) ** 2;
+    const c = hexToHsl(p);
+    let dh = Math.abs(target.h - c.h);
+    if (dh > 180) dh = 360 - dh;
+    // La teinte n'a de sens que si les deux couleurs sont saturées : pour un gris,
+    // un noir ou une couleur très pâle, on ignore le hue et on compare sur
+    // saturation/luminosité, sinon un noir peut "matcher" un rouge par hasard.
+    dh *= Math.min(target.s, c.s);
+    const dist = (dh * 2) ** 2 + ((target.s - c.s) * 100) ** 2 + ((target.l - c.l) * 100) ** 2;
     if (dist < bestDist) { bestDist = dist; best = p; }
   }
   return best;
