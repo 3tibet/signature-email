@@ -1176,17 +1176,17 @@ function genMinimal(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:11px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   let inner = '';
-  if (name)       inner += `<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:1px;font-family:Arial,sans-serif">${esc(name)}</div>`;
-  if (d.jobTitle) inner += `<div style="font-size:12px;color:#888;margin-bottom:2px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>`;
-  if (d.company)  inner += `<div style="font-size:11.5px;color:#aaa;margin-bottom:6px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
-  if (d.mentionsLegal) inner += `<div style="font-size:11px;color:#777;margin-bottom:6px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
-  if (parts.length) inner += `<div style="font-size:12px;color:#666;margin-bottom:6px;font-family:Arial,sans-serif">${parts.join(' · ')}</div>`;
-  if (d.address)  inner += `<div style="font-size:12px;color:${color};margin-bottom:6px;font-family:Arial,sans-serif">${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
-  if (icons)      inner += `<div style="margin-bottom:6px">${icons}</div>`;
+  if (name)       inner += `<div style="font-size:13.5px;line-height:1.3;font-weight:700;color:#1a1a1a;margin-bottom:1px;font-family:Arial,sans-serif">${esc(name)}</div>`;
+  if (d.jobTitle) inner += `<div style="font-size:11px;line-height:1.3;color:#888;margin-bottom:2px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>`;
+  if (d.company)  inner += `<div style="font-size:10.5px;line-height:1.3;color:#aaa;margin-bottom:5px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
+  if (d.mentionsLegal) inner += `<div style="font-size:10px;line-height:1.3;color:#777;margin-bottom:5px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
+  if (parts.length) inner += parts.map(p => `<div style="font-size:11px;line-height:1.3;color:#666;margin-bottom:2px;font-family:Arial,sans-serif">${p}</div>`).join('');
+  if (d.address)  inner += `<div style="font-size:11px;line-height:1.3;color:${color};margin-bottom:2px;font-family:Arial,sans-serif">${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
+  if (icons)      inner += `<div style="margin-top:4px;margin-bottom:4px">${icons}</div>`;
   inner += cta;
 
   if (photo) {
@@ -1209,7 +1209,7 @@ function genVertical(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="76" height="76" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;border:3px solid ${color};margin:0 auto" alt="">`
+    ? `<img src="${photoSrc}" width="76" height="76" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;border:3px solid ${color}" alt="">`
     : '';
   const logo = logoSrc
     ? `<div style="margin-top:10px"><img src="${logoSrc}" width="130" style="width:130px;height:auto;display:block;border:0" alt=""></div>`
