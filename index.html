@@ -1109,7 +1109,7 @@ function genModern(d, color, name) {
   // bgcolor (attribut HTML, pas juste CSS) + fond blanc porté par la cellule plutôt
   // qu'une bordure CSS : Gmail en mode sombre repeint sinon border:white en gris.
   const photo = photoSrc
-    ? `<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#ffffff" style="background:#ffffff;border-radius:50%;padding:1.5px;line-height:0"><img src="${photoSrc}" width="68" height="68" style="width:68px;height:68px;border-radius:50%;object-fit:cover;display:block" alt=""></td></tr></table>`
+    ? `<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#ffffff" style="background:#ffffff;border-radius:50%;padding:1px;line-height:0"><img src="${photoSrc}" width="68" height="68" style="width:68px;height:68px;border-radius:50%;object-fit:cover;display:block" alt=""></td></tr></table>`
     : '';
   const logo = logoSrc
     ? `<img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain" alt="">`
@@ -1123,7 +1123,7 @@ function genModern(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 12px;border-radius:9px;text-decoration:none;font-size:11.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   const photoCell = photo ? `<td style="padding-right:14px;vertical-align:middle">${photo}</td>` : '';
