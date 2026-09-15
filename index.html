@@ -872,86 +872,64 @@ function getData() {
   };
 }
 
-// ── Contact SVG icons (colored with brand color) ───
-const CONTACT_SVGS = {
-  phone: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="FILL" width="14" height="14"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>`,
-  email: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="FILL" width="14" height="14"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>`,
-  web:   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="FILL" width="14" height="14"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>`,
-  pin:   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="FILL" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>`,
-};
+// ── Icônes de contact / réseaux sociaux ─────────────
+// Servies en PNG statique depuis notre propre domaine (icons/) plutôt qu'en SVG
+// ou en data URI : Gmail retire ces deux derniers formats des emails envoyés/reçus
+// (même s'ils s'affichent dans la fenêtre de composition), alors qu'une image PNG
+// hébergée en HTTPS — comme la photo/logo déjà uploadés — survit de façon fiable.
+const ICONS_BASE = 'https://signature.10dix.fr/icons';
 
-// Gmail retire les images SVG (URL distante ou data URI) des emails envoyés/reçus,
-// même si elles s'affichent dans la fenêtre de composition. On les rasterise donc en
-// PNG (format que Gmail conserve, comme pour la photo/logo) via un <canvas> local.
-function svgToPngDataUri(svg, size = 32) {
-  return new Promise((resolve, reject) => {
-    const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      canvas.getContext('2d').drawImage(img, 0, 0, size, size);
-      URL.revokeObjectURL(url);
-      try {
-        resolve(canvas.toDataURL('image/png'));
-      } catch (err) {
-        reject(err);
-      }
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('svg-load-failed')); };
-    img.src = url;
-  });
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
 }
 
-const contactIconPngCache = new Map();
-async function cIcon(type, color) {
-  const key = CONTACT_SVGS[type] ? type : 'pin';
-  const cacheKey = `${key}|${color}`;
-  if (!contactIconPngCache.has(cacheKey)) {
-    const svg = CONTACT_SVGS[key].replace('FILL', color);
-    contactIconPngCache.set(cacheKey, await svgToPngDataUri(svg, 32));
+// Les icônes de contact ne sont pré-générées que pour les 8 couleurs prédéfinies
+// (PRESETS). Pour une couleur personnalisée, on prend la plus proche visuellement.
+function nearestPreset(hex) {
+  if (PRESETS.some(p => p.toLowerCase() === hex.toLowerCase())) return hex;
+  const target = hexToRgb(hex);
+  let best = PRESETS[0], bestDist = Infinity;
+  for (const p of PRESETS) {
+    const rgb = hexToRgb(p);
+    const dist = (rgb.r - target.r) ** 2 + (rgb.g - target.g) ** 2 + (rgb.b - target.b) ** 2;
+    if (dist < bestDist) { bestDist = dist; best = p; }
   }
-  return `<img src="${contactIconPngCache.get(cacheKey)}" width="14" height="14" alt="" style="display:inline-block;vertical-align:middle;margin-right:5px;margin-bottom:2px">`;
+  return best;
 }
 
-// ── Social icons — SVG intégrés en base64 (pas de dépendance réseau,
-// pour rester fiables une fois l'email reçu) ───
+function cIcon(type, color) {
+  const key = ['phone', 'email', 'web', 'pin'].includes(type) ? type : 'pin';
+  const preset = nearestPreset(color).replace('#', '').toLowerCase();
+  return `<img src="${ICONS_BASE}/${key}-${preset}.png" width="14" height="14" alt="" style="display:inline-block;vertical-align:middle;margin-right:5px;margin-bottom:2px">`;
+}
+
 const SOCIALS = {
-  linkedin  : { bg:'#0077B5', svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>` },
-  twitter   : { bg:'#000000', svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.742l7.74-8.851L1.254 2.25H8.08l4.259 5.629L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>` },
-  instagram : { bg:'#E1306C', svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>` },
-  facebook  : { bg:'#1877F2', svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>` },
-  youtube   : { bg:'#FF0000', svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>` },
-  github    : { bg:'#333333', svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>` },
-  tiktok    : { bg:'#010101', svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="white"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>` },
+  linkedin  : { bg:'#0077B5' },
+  twitter   : { bg:'#000000' },
+  instagram : { bg:'#E1306C' },
+  facebook  : { bg:'#1877F2' },
+  youtube   : { bg:'#FF0000' },
+  github    : { bg:'#333333' },
+  tiktok    : { bg:'#010101' },
 };
 
-const socialIconPngCache = new Map();
-async function socialIconPng(key) {
-  if (!socialIconPngCache.has(key)) {
-    socialIconPngCache.set(key, await svgToPngDataUri(SOCIALS[key].svg, 48));
-  }
-  return socialIconPngCache.get(key);
-}
-
-async function socialIconsHTML(d) {
+function socialIconsHTML(d) {
   const nets = Object.keys(SOCIALS).filter(k => safeHref(d[k]));
   if (!nets.length) return '';
   const brandColor = d.color || '#2563EB';
-  const cells = await Promise.all(nets.map(async k => {
+  const cells = nets.map(k => {
     const s   = SOCIALS[k];
     const bg  = iconMode === 'brand' ? brandColor : s.bg;
     const href = safeHref(d[k]);
-    const src  = await socialIconPng(k);
+    const src  = `${ICONS_BASE}/social-${k}.png`;
     return `<td style="padding:0 5px 0 0">` +
       `<a href="${href}" target="_blank" rel="noopener" style="text-decoration:none;display:block">` +
       `<table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:${bg};width:26px;height:26px;border-radius:6px;text-align:center;vertical-align:middle">` +
       `<img src="${src}" width="16" height="16" alt="${k}" style="display:block;margin:5px auto">` +
       `</td></tr></table></a></td>`;
-  }));
-  return `<table cellpadding="0" cellspacing="0" border="0"><tr>${cells.join('')}</tr></table>`;
+  }).join('');
+  return `<table cellpadding="0" cellspacing="0" border="0"><tr>${cells}</tr></table>`;
 }
 
 function esc(str) {
@@ -1047,7 +1025,7 @@ function resolveImageUrl(url) {
 
 // ── Template generators ─────────────────────────────
 
-async function genClassic(d, color, name) {
+function genClassic(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
@@ -1069,14 +1047,14 @@ async function genClassic(d, color, name) {
   if (d.mentionsLegal) info += `<div style="font-size:11px;color:#777;margin-bottom:8px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
 
   const lines = [];
-  if (d.phone && safeHref('tel:' + d.phone, true))   lines.push(`${await cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
-  if (d.email && safeHref('mailto:' + d.email, true))   lines.push(`${await cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
-  if (safeHref(d.website)) lines.push(`${await cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
-  if (d.address) lines.push(`${await cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a>`);
+  if (d.phone && safeHref('tel:' + d.phone, true))   lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
+  if (d.email && safeHref('mailto:' + d.email, true))   lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
+  if (safeHref(d.website)) lines.push(`${cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a>`);
   if (lines.length)
     info += `<div style="font-size:12px;color:#555;line-height:2;font-family:Arial,sans-serif">${lines.join('<br>')}</div>`;
 
-  const icons = await socialIconsHTML(d);
+  const icons = socialIconsHTML(d);
   if (icons) info += `<div style="margin-top:10px">${icons}</div>`;
 
   if (d.ctaText && safeHref(d.ctaLink))
@@ -1098,23 +1076,25 @@ async function genClassic(d, color, name) {
 </table>`;
 }
 
-async function genModern(d, color, name) {
+function genModern(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
+  // bgcolor (attribut HTML, pas juste CSS) + fond blanc porté par la cellule plutôt
+  // qu'une bordure CSS : Gmail en mode sombre repeint sinon border:white en gris.
   const photo = photoSrc
-    ? `<img src="${photoSrc}" width="68" height="68" style="width:68px;height:68px;border-radius:50%;object-fit:cover;display:block;border:3px solid white;margin:0 auto" alt="">`
+    ? `<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#ffffff" style="background:#ffffff;border-radius:50%;padding:3px;line-height:0"><img src="${photoSrc}" width="68" height="68" style="width:68px;height:68px;border-radius:50%;object-fit:cover;display:block" alt=""></td></tr></table>`
     : '';
   const logo = logoSrc
     ? `<img src="${logoSrc}" height="50" style="height:50px;display:block;max-width:100%;object-fit:contain" alt="">`
     : '';
 
   const lines = [];
-  if (d.phone && safeHref('tel:' + d.phone, true)) lines.push(`${await cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
-  if (d.email && safeHref('mailto:' + d.email, true)) lines.push(`${await cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
-  if (safeHref(d.website)) lines.push(`${await cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
-  if (d.address) lines.push(`${await cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.address)}</a>`);
+  if (d.phone && safeHref('tel:' + d.phone, true)) lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
+  if (d.email && safeHref('mailto:' + d.email, true)) lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
+  if (safeHref(d.website)) lines.push(`${cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
+  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.address)}</a>`);
 
-  const icons = await socialIconsHTML(d);
+  const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
     ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 16px;border-radius:6px;text-decoration:none;font-size:12.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
@@ -1124,7 +1104,7 @@ async function genModern(d, color, name) {
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;width:100%;max-width:460px;border-radius:10px;overflow:hidden">
   <tr>
-    <td style="background:${color};padding:16px 20px;border-radius:10px 10px 0 0">
+    <td bgcolor="${color}" style="background:${color};padding:16px 20px;border-radius:10px 10px 0 0">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
           ${photoCell}
@@ -1140,7 +1120,7 @@ async function genModern(d, color, name) {
     </td>
   </tr>
   <tr>
-    <td style="background:#f8f8f8;padding:14px 20px;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 10px 10px">
+    <td bgcolor="#f8f8f8" style="background:#f8f8f8;padding:14px 20px;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 10px 10px">
       ${lines.length ? `<div style="font-size:12px;color:#555;line-height:2;margin-bottom:8px;font-family:Arial,sans-serif">${lines.join('<br>')}</div>` : ''}
       ${icons ? `<div style="margin-bottom:8px">${icons}</div>` : ''}
       ${cta}
@@ -1149,7 +1129,7 @@ async function genModern(d, color, name) {
 </table>`;
 }
 
-async function genMinimal(d, color, name) {
+function genMinimal(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
@@ -1167,7 +1147,7 @@ async function genMinimal(d, color, name) {
   if (d.email && safeHref('mailto:' + d.email, true)) parts.push(`<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
   if (safeHref(d.website)) parts.push(`<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
 
-  const icons = await socialIconsHTML(d);
+  const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
     ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:12px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
@@ -1178,7 +1158,7 @@ async function genMinimal(d, color, name) {
   if (d.company)  inner += `<div style="font-size:11.5px;color:#aaa;margin-bottom:6px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
   if (d.mentionsLegal) inner += `<div style="font-size:11px;color:#777;margin-bottom:6px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
   if (parts.length) inner += `<div style="font-size:12px;color:#666;margin-bottom:6px;font-family:Arial,sans-serif">${parts.join(' · ')}</div>`;
-  if (d.address)  inner += `<div style="font-size:12px;color:${color};margin-bottom:6px;font-family:Arial,sans-serif">${await cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
+  if (d.address)  inner += `<div style="font-size:12px;color:${color};margin-bottom:6px;font-family:Arial,sans-serif">${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
   if (icons)      inner += `<div style="margin-bottom:6px">${icons}</div>`;
   inner += cta;
 
@@ -1198,7 +1178,7 @@ async function genMinimal(d, color, name) {
 </table>`;
 }
 
-async function genVertical(d, color, name) {
+function genVertical(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
@@ -1210,12 +1190,12 @@ async function genVertical(d, color, name) {
   const sep = `<div style="height:1px;background:#e8e8e8;margin:10px 0"></div>`;
 
   let contact = '';
-  if (d.phone && safeHref('tel:' + d.phone, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${await cIcon('phone',color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a></div>`;
-  if (d.email && safeHref('mailto:' + d.email, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${await cIcon('email',color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a></div>`;
-  if (safeHref(d.website)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${await cIcon('web',color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//,''))}</a></div>`;
-  if (d.address) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${await cIcon('pin',color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
+  if (d.phone && safeHref('tel:' + d.phone, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('phone',color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a></div>`;
+  if (d.email && safeHref('mailto:' + d.email, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('email',color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a></div>`;
+  if (safeHref(d.website)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('web',color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//,''))}</a></div>`;
+  if (d.address) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('pin',color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
 
-  const icons = await socialIconsHTML(d);
+  const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
     ? `<div style="margin-top:14px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
@@ -1265,8 +1245,8 @@ function generateHTML(d) {
   return genClassic(d, color, name);
 }
 
-async function generateCompleteSignatureHTML(d) {
-  const signatureContent = await generateHTML(d);
+function generateCompleteSignatureHTML(d) {
+  const signatureContent = generateHTML(d);
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -1295,10 +1275,10 @@ ${signatureContent}
 </html>`;
 }
 
-async function updatePreview() {
+function updatePreview() {
   const d = getData();
-  const html = await generateHTML(d);
-  const completeHtml = await generateCompleteSignatureHTML(d);
+  const html = generateHTML(d);
+  const completeHtml = generateCompleteSignatureHTML(d);
   document.getElementById('signaturePreview').innerHTML = html;
   document.getElementById('htmlOutput').textContent = completeHtml;
 }
@@ -1315,7 +1295,7 @@ function showTab(tab) {
 // ── Copy ─────────────────────────────────────────────
 async function copySignature() {
   const d = getData();
-  const html = await generateHTML(d);
+  const html = generateHTML(d);
   const btn  = document.getElementById('copyBtn');
   const orig = btn.textContent;
 
@@ -1342,7 +1322,7 @@ async function copySignature() {
 
 async function copyHtml() {
   const d = getData();
-  const html = await generateCompleteSignatureHTML(d);
+  const html = generateCompleteSignatureHTML(d);
   const btn = document.getElementById('copyHtmlBtn');
   const orig = btn.textContent;
 
