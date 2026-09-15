@@ -903,32 +903,32 @@ function hexToHsl(hex) {
   return { h, s, l };
 }
 
-// Les icônes de contact ne sont pré-générées que pour les 8 couleurs prédéfinies
-// (PRESETS). Pour une couleur personnalisée, on prend la plus proche visuellement —
-// en comparant surtout la teinte (hue) : une distance RVB brute peut faire dévier
-// un bleu marine vers un preset cyan/turquoise qui n'a pas la même famille de couleur.
-function nearestPreset(hex) {
-  if (PRESETS.some(p => p.toLowerCase() === hex.toLowerCase())) return hex;
-  const target = hexToHsl(hex);
-  let best = PRESETS[0], bestDist = Infinity;
-  for (const p of PRESETS) {
-    const c = hexToHsl(p);
-    let dh = Math.abs(target.h - c.h);
-    if (dh > 180) dh = 360 - dh;
-    // La teinte n'a de sens que si les deux couleurs sont saturées : pour un gris,
-    // un noir ou une couleur très pâle, on ignore le hue et on compare sur
-    // saturation/luminosité, sinon un noir peut "matcher" un rouge par hasard.
-    dh *= Math.min(target.s, c.s);
-    const dist = (dh * 2) ** 2 + ((target.s - c.s) * 100) ** 2 + ((target.l - c.l) * 100) ** 2;
-    if (dist < bestDist) { bestDist = dist; best = p; }
-  }
-  return best;
+// Les 8 couleurs prédéfinies (PRESETS) ont un fichier exact (icons/phone-2563eb.png…).
+// Pour toute autre couleur, on retombe sur une grille fine pré-générée (24 teintes ×
+// 3 niveaux de luminosité, + une rampe de gris pour les couleurs peu saturées) : assez
+// dense pour être visuellement indissociable de la couleur de marque exacte, tout en
+// restant des fichiers statiques fiables (voir commentaire plus haut).
+const GRID_HUE_STEP = 15;
+const GRID_LIGHT_BANDS = [30, 45, 60];
+const GRID_GRAY_BANDS = [10, 25, 40, 55, 70, 85];
+
+function nearestBand(value, bands) {
+  return bands.reduce((a, b) => (Math.abs(b - value) < Math.abs(a - value) ? b : a));
+}
+
+function iconSwatch(hex) {
+  const exact = PRESETS.find(p => p.toLowerCase() === hex.toLowerCase());
+  if (exact) return exact.replace('#', '').toLowerCase();
+  const { h, s, l } = hexToHsl(hex);
+  if (s < 0.12) return `gray-l${nearestBand(l * 100, GRID_GRAY_BANDS)}`;
+  const hue = (Math.round(h / GRID_HUE_STEP) * GRID_HUE_STEP) % 360;
+  return `h${hue}-l${nearestBand(l * 100, GRID_LIGHT_BANDS)}`;
 }
 
 function cIcon(type, color) {
   const key = ['phone', 'email', 'web', 'pin'].includes(type) ? type : 'pin';
-  const preset = nearestPreset(color).replace('#', '').toLowerCase();
-  return `<img src="${ICONS_BASE}/${key}-${preset}.png" width="14" height="14" alt="" style="display:inline-block;vertical-align:middle;margin-right:5px;margin-bottom:2px">`;
+  const swatch = iconSwatch(color);
+  return `<img src="${ICONS_BASE}/${key}-${swatch}.png" width="14" height="14" alt="" style="display:inline-block;vertical-align:middle;margin-right:5px;margin-bottom:2px">`;
 }
 
 const SOCIALS = {
