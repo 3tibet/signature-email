@@ -1123,7 +1123,7 @@ function genModern(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 12px;border-radius:9px;text-decoration:none;font-size:11.5px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:7px 12px;border-radius:9px;text-decoration:none;font-size:11.5px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   const photoCell = photo ? `<td style="padding-right:14px;vertical-align:middle">${photo}</td>` : '';
