@@ -1085,7 +1085,7 @@ function genClassic(d, color, name) {
   if (icons) info += `<div style="margin-top:10px">${icons}</div>`;
 
   if (d.ctaText && safeHref(d.ctaLink))
-    info += `<div style="margin-top:12px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
+    info += `<div style="margin-top:12px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
 
     if (photo) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
@@ -1176,7 +1176,7 @@ function genMinimal(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:11px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:11px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   let inner = '';
@@ -1224,7 +1224,7 @@ function genVertical(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:14px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:700;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:14px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
     : '';
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;max-width:300px;width:100%">
