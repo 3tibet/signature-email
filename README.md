@@ -28,4 +28,4 @@
 Placez le script juste avant la balise de fermeture `</body>` pour vous assurer que le DOM est prêt. Si vous devez l'intégrer dans le `<head>`, ajoutez l'attribut `defer`.
 
 ```html
-<script src="[https://github.com/3tibet/signature-email/releases/download/v1.0.0/signature-email.min-v1.0.0.js](https://github.com/3tibet/signature-email/releases/download/v1.0.0/signature-email.min-v1.0.0.js)"></script>
+<script src="https://github.com/3tibet/signature-email/releases/download/v1.0.0/signature-email.min-v1.0.0.js"></script>
