@@ -1001,6 +1001,19 @@ function resolveImageUrl(url) {
 
 // ── Template generators ─────────────────────────────
 
+// Un emoji calendrier en tête du texte du bouton (📅 📆 🗓️) est remplacé par l'icône
+// blanche hébergée : l'emoji garde sinon ses couleurs (rouge/gris) et varie selon l'appareil.
+const CTA_CALENDAR_RE = /^\s*(?:\u{1F4C5}|\u{1F4C6}|\u{1F5D3}️?)\s*/u;
+function ctaLabel(text, color, filled) {
+  if (!CTA_CALENDAR_RE.test(text)) return esc(text);
+  const rest = esc(text.replace(CTA_CALENDAR_RE, ''));
+  const img = (size) => `<img src="${ICONS_BASE}/calendar-white.png" width="${size}" height="${size}" alt="" style="display:inline-block;width:${size}px;height:${size}px;border:0;vertical-align:middle">`;
+  const icon = filled
+    ? `<span style="display:inline-block;vertical-align:middle;margin-right:6px;line-height:0">${img(12)}</span>`
+    : `<span style="display:inline-block;vertical-align:middle;margin-right:6px;background:${color};background-color:${color};border-radius:3px;padding:2px;line-height:0">${img(9)}</span>`;
+  return `${icon}<span style="vertical-align:middle">${rest}</span>`;
+}
+
 function genClassic(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
@@ -1034,7 +1047,7 @@ function genClassic(d, color, name) {
   if (icons) info += `<div style="margin-top:10px">${icons}</div>`;
 
   if (d.ctaText && safeHref(d.ctaLink))
-    info += `<div style="margin-top:12px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`;
+    info += `<div style="margin-top:12px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, true)}</a></div>`;
 
     if (photo) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
@@ -1090,7 +1103,7 @@ function genModern(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:6px 11px;border-radius:8px;text-decoration:none;font-size:10.5px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:6px 11px;border-radius:8px;text-decoration:none;font-size:10.5px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, true)}</a></div>`
     : '';
 
   // Logo sous la photo (pas en 3e colonne) : le texte garde la largeur sur petit écran.
@@ -1144,7 +1157,7 @@ function genMinimal(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:11px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:11px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, false)}</a></div>`
     : '';
 
   let inner = '';
@@ -1192,7 +1205,7 @@ function genVertical(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:14px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${esc(d.ctaText)}</a></div>`
+    ? `<div style="margin-top:14px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, true)}</a></div>`
     : '';
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;max-width:300px;width:100%">
