@@ -875,10 +875,36 @@ const ICONS_BASE = 'https://signature.10dix.fr/icons';
 // La couleur exacte de marque ne peut pas être « cuite » dans un fichier statique :
 // elle est donc portée par le fond de la pastille (bgcolor/background, comme le
 // bandeau du modèle Moderne) et seul le pictogramme blanc est une image hébergée.
-function cIcon(type, color) {
-  const key = ['phone', 'email', 'web', 'pin'].includes(type) ? type : 'pin';
-  return `<span style="display:inline-block;background:${color};background-color:${color};border-radius:4px;padding:3px;line-height:0;vertical-align:middle;margin-right:6px;margin-bottom:2px">` +
-    `<img src="${ICONS_BASE}/${key}-white.png" width="10" height="10" alt="" style="display:block;width:10px;height:10px;border:0"></span>`;
+// Pastilles et boutons en cellules de tableau (bgcolor + padding) : Outlook Windows
+// (moteur Word) ignore display:inline-block, le padding des <span>/<a> et coupe les
+// images sous line-height:0 — seul ce motif rend pareil partout.
+function contactItems(d) {
+  const items = [];
+  const tel = d.phone && safeHref('tel:' + d.phone, true);
+  const mail = d.email && safeHref('mailto:' + d.email, true);
+  if (tel)  items.push({ type: 'phone', href: tel, text: d.phone });
+  if (mail) items.push({ type: 'email', href: mail, text: d.email });
+  if (safeHref(d.website)) items.push({ type: 'web', href: safeHref(d.website), text: d.website.replace(/^https?:\/\//, '') });
+  if (d.address) items.push({ type: 'pin', href: mapsLink(d.address), text: d.address });
+  return items;
+}
+
+function contactTable(items, color, size, gap) {
+  if (!items.length) return '';
+  const spacer = `<tr><td colspan="2" height="${gap}" style="height:${gap}px;font-size:1px;line-height:1px">&nbsp;</td></tr>`;
+  const rows = items.map((it, i) => (i ? spacer : '') +
+    `<tr><td bgcolor="${color}" valign="middle" style="background:${color};border-radius:4px;padding:3px;vertical-align:middle">` +
+    `<img src="${ICONS_BASE}/${it.type}-white.png" width="10" height="10" alt="" style="display:block;width:10px;height:10px;border:0"></td>` +
+    `<td valign="middle" style="padding-left:6px;vertical-align:middle;font-size:${size}px;line-height:${size + 4}px;font-family:Arial,sans-serif;color:${color}">` +
+    `<a href="${it.href}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(it.text)}</a></td></tr>`).join('');
+  return `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate">${rows}</table>`;
+}
+
+function ctaButton(href, label, { bg, fg, border, padY, padX, radius, size }) {
+  return `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate"><tr>` +
+    `<td ${bg ? `bgcolor="${bg}" ` : ''}style="${bg ? `background:${bg};` : ''}${border ? `border:${border};` : ''}border-radius:${radius}px;padding:${padY}px ${padX}px">` +
+    `<a href="${href}" target="_blank" rel="noopener" style="color:${fg};text-decoration:none;font-size:${size}px;font-weight:400;font-family:Arial,sans-serif">${label}</a>` +
+    `</td></tr></table>`;
 }
 
 const SOCIALS = {
@@ -900,10 +926,10 @@ function socialIconsHTML(d) {
     const bg  = iconMode === 'brand' ? brandColor : s.bg;
     const href = safeHref(d[k]);
     return `<td style="padding:0 5px 0 0">` +
-      `<a href="${href}" target="_blank" rel="noopener" style="text-decoration:none;display:block">` +
-      `<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="${bg}" style="background:${bg};width:22px;height:22px;border-radius:5px;text-align:center;vertical-align:middle;line-height:0">` +
-      `<img src="${ICONS_BASE}/social-${s.glyph || k}.png" width="13" height="13" alt="${k}" style="display:block;width:13px;height:13px;margin:4px auto;border:0">` +
-      `</td></tr></table></a></td>`;
+      `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate"><tr><td bgcolor="${bg}" style="background:${bg};border-radius:5px;padding:4px">` +
+      `<a href="${href}" target="_blank" rel="noopener" style="text-decoration:none">` +
+      `<img src="${ICONS_BASE}/social-${s.glyph || k}.png" width="14" height="14" alt="${k}" style="display:block;width:14px;height:14px;border:0">` +
+      `</a></td></tr></table></td>`;
   }).join('');
   return `<table cellpadding="0" cellspacing="0" border="0"><tr>${cells}</tr></table>`;
 }
@@ -1009,8 +1035,8 @@ function ctaLabel(text, color, filled) {
   const rest = esc(text.replace(CTA_CALENDAR_RE, ''));
   const img = (size) => `<img src="${ICONS_BASE}/calendar-white.png" width="${size}" height="${size}" alt="" style="display:inline-block;width:${size}px;height:${size}px;border:0;vertical-align:middle">`;
   const icon = filled
-    ? `<span style="display:inline-block;vertical-align:middle;margin-right:6px;line-height:0">${img(12)}</span>`
-    : `<span style="display:inline-block;vertical-align:middle;margin-right:6px;background:${color};background-color:${color};border-radius:3px;padding:2px;line-height:0">${img(9)}</span>`;
+    ? `<span style="display:inline-block;vertical-align:middle;margin-right:6px">${img(12)}</span>`
+    : `<span style="display:inline-block;vertical-align:middle;margin-right:6px;background:${color};background-color:${color};border-radius:3px;padding:2px">${img(9)}</span>`;
   return `${icon}<span style="vertical-align:middle">${rest}</span>`;
 }
 
@@ -1035,19 +1061,13 @@ function genClassic(d, color, name) {
   if (d.company)  info += `<div style="font-size:12px;color:#aaa;margin-bottom:8px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
   if (d.mentionsLegal) info += `<div style="font-size:9.5px;color:#777;margin-bottom:8px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
 
-  const lines = [];
-  if (d.phone && safeHref('tel:' + d.phone, true))   lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a>`);
-  if (d.email && safeHref('mailto:' + d.email, true))   lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a>`);
-  if (safeHref(d.website)) lines.push(`${cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
-  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a>`);
-  if (lines.length)
-    info += `<div style="font-size:12px;color:#555;line-height:2;font-family:Arial,sans-serif">${lines.join('<br>')}</div>`;
+  info += contactTable(contactItems(d), color, 12, 6);
 
   const icons = socialIconsHTML(d);
   if (icons) info += `<div style="margin-top:10px">${icons}</div>`;
 
   if (d.ctaText && safeHref(d.ctaLink))
-    info += `<div style="margin-top:12px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:8px 18px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, true)}</a></div>`;
+    info += `<div style="margin-top:12px">${ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, true), { bg: color, fg: '#ffffff', padY: 8, padX: 18, radius: 6, size: 13 })}</div>`;
 
     if (photo) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
@@ -1086,7 +1106,7 @@ function genModern(d, color, name) {
   // bgcolor (attribut HTML, pas juste CSS) + fond blanc porté par la cellule plutôt
   // qu'une bordure CSS : Gmail en mode sombre repeint sinon border:white en gris.
   const photo = photoSrc
-    ? `<table align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto"><tr><td bgcolor="#ffffff" style="background:#ffffff;background-image:linear-gradient(#ffffff,#ffffff);border-radius:50%;padding:0;line-height:0"><img src="${photoSrc}" width="54" height="54" style="width:54px;height:54px;min-width:54px;max-width:none;border-radius:50%;object-fit:cover;display:block" alt=""></td></tr></table>`
+    ? `<table align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto"><tr><td bgcolor="#ffffff" style="background:#ffffff;background-image:linear-gradient(#ffffff,#ffffff);border-radius:50%;padding:0"><img src="${photoSrc}" width="54" height="54" style="width:54px;height:54px;min-width:54px;max-width:none;border-radius:50%;object-fit:cover;display:block" alt=""></td></tr></table>`
     : '';
   const LOGO_H = 26;
   const ratio = logoSrc ? logoRatio(logoSrc) : null;
@@ -1095,15 +1115,11 @@ function genModern(d, color, name) {
     ? `<img src="${logoSrc}" ${logoW ? `width="${logoW}" ` : ''}height="${LOGO_H}" style="${logoW ? `width:${logoW}px;` : 'width:auto;'}height:${LOGO_H}px;min-width:0;max-width:none;display:block;margin:0 auto;border:0" alt="">`
     : '';
 
-  const lines = [];
-  if (d.phone && safeHref('tel:' + d.phone, true)) lines.push(`${cIcon('phone', color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-size:12px;font-family:Arial,sans-serif">${esc(d.phone)}</a>`);
-  if (d.email && safeHref('mailto:' + d.email, true)) lines.push(`${cIcon('email', color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-size:12px;font-family:Arial,sans-serif">${esc(d.email)}</a>`);
-  if (safeHref(d.website)) lines.push(`${cIcon('web', color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-size:12px;font-family:Arial,sans-serif">${esc(d.website.replace(/^https?:\/\//, ''))}</a>`);
-  if (d.address) lines.push(`${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none;font-size:12px;font-family:Arial,sans-serif">${esc(d.address)}</a>`);
+  const contacts = contactTable(contactItems(d), color, 12, 4);
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:10px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:6px 11px;border-radius:8px;text-decoration:none;font-size:10.5px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, true)}</a></div>`
+    ? `<div style="margin-top:10px">${ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, true), { bg: color, fg: '#ffffff', padY: 6, padX: 11, radius: 8, size: 10.5 })}</div>`
     : '';
 
   // Logo sous la photo (pas en 3e colonne) : le texte garde la largeur sur petit écran.
@@ -1129,7 +1145,7 @@ function genModern(d, color, name) {
   </tr>
   <tr>
     <td bgcolor="#ffffff" style="background:#ffffff;background-image:linear-gradient(#ffffff,#ffffff);padding:12px 14px;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 10px 10px">
-      ${lines.length ? `<div style="font-size:12px;color:#555;line-height:1.75;margin-bottom:8px;font-family:Arial,sans-serif">${lines.join('<br>')}</div>` : ''}
+      ${contacts ? `<div style="margin-bottom:8px">${contacts}</div>` : ''}
       ${icons ? `<div style="margin-bottom:8px">${icons}</div>` : ''}
       ${cta}
     </td>
@@ -1157,7 +1173,7 @@ function genMinimal(d, color, name) {
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:8px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;border:1.5px solid ${color};color:${color};padding:6px 14px;border-radius:20px;text-decoration:none;font-size:11px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, false)}</a></div>`
+    ? `<div style="margin-top:8px">${ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, false), { fg: color, border: `2px solid ${color}`, padY: 6, padX: 14, radius: 20, size: 11 })}</div>`
     : '';
 
   let inner = '';
@@ -1166,7 +1182,7 @@ function genMinimal(d, color, name) {
   if (d.company)  inner += `<div style="font-size:10.5px;line-height:1.3;color:#aaa;margin-bottom:5px;font-family:Arial,sans-serif">${esc(d.company)}</div>`;
   if (d.mentionsLegal) inner += `<div style="font-size:9.5px;line-height:1.3;color:#777;margin-bottom:5px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>`;
   if (parts.length) inner += parts.map(p => `<div style="font-size:11px;line-height:1.3;color:#666;margin-bottom:2px;font-family:Arial,sans-serif">${p}</div>`).join('');
-  if (d.address)  inner += `<div style="font-size:11px;line-height:1.3;color:${color};margin-bottom:2px;font-family:Arial,sans-serif">${cIcon('pin', color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
+  if (d.address)  inner += `<div style="margin-bottom:2px">${contactTable([{ type: 'pin', href: mapsLink(d.address), text: d.address }], color, 11, 0)}</div>`;
   if (icons)      inner += `<div style="margin-top:4px;margin-bottom:4px">${icons}</div>`;
   inner += cta;
 
@@ -1197,15 +1213,11 @@ function genVertical(d, color, name) {
     : '';
   const sep = `<div style="height:1px;background:#e8e8e8;margin:10px 0"></div>`;
 
-  let contact = '';
-  if (d.phone && safeHref('tel:' + d.phone, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('phone',color)}<a href="${safeHref('tel:' + d.phone, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.phone)}</a></div>`;
-  if (d.email && safeHref('mailto:' + d.email, true)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('email',color)}<a href="${safeHref('mailto:' + d.email, true)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.email)}</a></div>`;
-  if (safeHref(d.website)) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('web',color)}<a href="${safeHref(d.website)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.website.replace(/^https?:\/\//,''))}</a></div>`;
-  if (d.address) contact += `<div style="font-size:12.5px;color:${color};margin-bottom:5px;font-family:Arial,sans-serif">${cIcon('pin',color)}<a href="${mapsLink(d.address)}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(d.address)}</a></div>`;
+  const contact = contactTable(contactItems(d), color, 12.5, 5);
 
   const icons = socialIconsHTML(d);
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:14px"><a href="${safeHref(d.ctaLink)}" target="_blank" rel="noopener" style="display:inline-block;background:${color};color:white;padding:9px 20px;border-radius:6px;text-decoration:none;font-size:13px;font-weight:400;font-family:Arial,sans-serif">${ctaLabel(d.ctaText, color, true)}</a></div>`
+    ? `<div style="margin-top:14px">${ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, true), { bg: color, fg: '#ffffff', padY: 9, padX: 20, radius: 6, size: 13 })}</div>`
     : '';
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;max-width:300px;width:100%">
@@ -1268,11 +1280,6 @@ function generateCompleteSignatureHTML(d) {
   a { color: inherit; }
   /* Media queries pour mobile (max-width 600px) */
   @media screen and (max-width: 600px) {
-    table { width: 100% !important; max-width: 100% !important; }
-    td { width: 100% !important; display: block !important; }
-    tr { display: block !important; }
-    img { max-width: 100% !important; height: auto !important; }
-    a { min-height: 44px !important; padding: 10px 0 !important; display: flex !important; align-items: center !important; }
     div { max-width: 100% !important; }
   }
 </style>
