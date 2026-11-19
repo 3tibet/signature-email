@@ -1139,7 +1139,7 @@ function genModern(d, color, name) {
     ? ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, true), { bg: color, fg: '#ffffff', padY: 6, padX: 11, radius: 8, size: 10.5, align: 'center' })
     : '';
 
-  const side = (content) => `<td width="${SIDE_W}" align="center" valign="top" style="width:${SIDE_W}px;vertical-align:top;text-align:center">${content}</td>`;
+  const side = (content) => `<td width="${SIDE_W}" align="center" valign="middle" style="width:${SIDE_W}px;vertical-align:middle;text-align:center">${content}</td>`;
   const hasSides = photo || logo;
 
   // Bas : contacts à gauche, CTA + réseaux centrés à droite.
