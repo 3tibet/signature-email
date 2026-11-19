@@ -909,8 +909,8 @@ function contactTable(items, color, size, gap) {
   return `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate">${rows}</table>`;
 }
 
-function ctaButton(href, label, { bg, fg, border, padY, padX, radius, size }) {
-  return `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate"><tr>` +
+function ctaButton(href, label, { bg, fg, border, padY, padX, radius, size, align }) {
+  return `<table ${align ? `align="${align}" ` : ''}cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate"><tr>` +
     `<td ${bg ? `bgcolor="${bg}" ` : ''}style="${bg ? `background:${bg};` : ''}${border ? `border:${border};` : ''}border-radius:${radius}px;padding:${padY}px ${padX}px">` +
     `<a href="${href}" target="_blank" rel="noopener" style="color:${fg};text-decoration:none;font-size:${size}px;font-weight:400;font-family:Arial,sans-serif">${label}</a>` +
     `</td></tr></table>`;
@@ -926,7 +926,7 @@ const SOCIALS = {
   tiktok    : { bg:'#010101' },
 };
 
-function socialIconsHTML(d) {
+function socialIconsHTML(d, align) {
   const nets = Object.keys(SOCIALS).filter(k => safeHref(d[k]));
   if (!nets.length) return '';
   const brandColor = d.color || '#2563EB';
@@ -939,7 +939,7 @@ function socialIconsHTML(d) {
       pastilleImg(`social-${s.glyph || k}`, bg, 22, 5, k) +
       `</a></td>`;
   }).join('');
-  return `<table cellpadding="0" cellspacing="0" border="0"><tr>${cells}</tr></table>`;
+  return `<table ${align ? `align="${align}" ` : ''}cellpadding="0" cellspacing="0" border="0"><tr>${cells}</tr></table>`;
 }
 
 function esc(str) {
@@ -1117,46 +1117,54 @@ function genModern(d, color, name) {
   const photo = photoSrc
     ? `<img src="${photoSrc}" width="54" height="54" style="width:54px;height:54px;min-width:54px;max-width:none;border-radius:50%;object-fit:cover;display:block;margin:0 auto;border:0" alt="">`
     : '';
-  const LOGO_H = 26;
+  // Colonnes photo et logo de même largeur : le bloc texte reste centré dans le bandeau.
+  const SIDE_W = 80;
   const ratio = logoSrc ? logoRatio(logoSrc) : null;
-  const logoW = ratio ? Math.round(LOGO_H * ratio) : null;
+  const logoH = ratio ? Math.min(26, Math.round(SIDE_W / ratio)) : 26;
+  const logoW = ratio ? Math.round(logoH * ratio) : null;
   const logo = logoSrc
-    ? `<img src="${logoSrc}" ${logoW ? `width="${logoW}" ` : ''}height="${LOGO_H}" style="${logoW ? `width:${logoW}px;` : 'width:auto;'}height:${LOGO_H}px;min-width:0;max-width:none;display:block;margin:0 auto;border:0" alt="">`
+    ? `<img src="${logoSrc}" ${logoW ? `width="${logoW}" ` : ''}height="${logoH}" style="${logoW ? `width:${logoW}px;` : 'width:auto;'}height:${logoH}px;min-width:0;max-width:${SIDE_W}px;display:block;margin:0 auto;border:0" alt="">`
     : '';
 
   const contacts = contactTable(contactItems(d), color, 12, 4);
 
-  const icons = socialIconsHTML(d);
+  const icons = socialIconsHTML(d, 'center');
   const cta = (d.ctaText && safeHref(d.ctaLink))
-    ? `<div style="margin-top:10px">${ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, true), { bg: color, fg: '#ffffff', padY: 6, padX: 11, radius: 8, size: 10.5 })}</div>`
+    ? ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, true), { bg: color, fg: '#ffffff', padY: 6, padX: 11, radius: 8, size: 10.5, align: 'center' })
     : '';
 
-  // Logo sous la photo (pas en 3e colonne) : le texte garde la largeur sur petit écran.
-  const leftCell = (photo || logo)
-    ? `<td align="center" valign="top" style="padding-right:12px;vertical-align:top;text-align:center">${photo}${logo ? `<div align="center" style="margin-top:${photo ? 8 : 0}px;text-align:center">${logo}</div>` : ''}</td>`
-    : '';
+  const side = (content) => `<td width="${SIDE_W}" align="center" valign="top" style="width:${SIDE_W}px;vertical-align:top;text-align:center">${content}</td>`;
+  const hasSides = photo || logo;
+
+  // Bas : contacts à gauche, CTA + réseaux centrés à droite.
+  const actions = cta + (cta && icons ? `<div style="height:8px;line-height:8px;font-size:1px">&nbsp;</div>` : '') + icons;
+  const bottom = contacts && actions
+    ? `<table cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+        <td valign="middle" style="vertical-align:middle">${contacts}</td>
+        <td align="center" valign="middle" style="padding-left:10px;vertical-align:middle;text-align:center">${actions}</td>
+      </tr></table>`
+    : contacts || actions;
 
   return `<table width="400" cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;width:400px;max-width:100%;border-radius:10px;overflow:hidden">
   <tr>
     <td bgcolor="${color}" style="background:${color};padding:14px 14px;border-radius:10px 10px 0 0">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          ${leftCell}
-          <td width="100%" valign="top" style="vertical-align:top">
+          ${hasSides ? side(photo) : ''}
+          <td valign="top" style="padding:0 ${hasSides ? 10 : 0}px;vertical-align:top;text-align:left">
             ${name ? `<div style="color:white;font-size:16px;line-height:19px;font-weight:700;font-family:Arial,sans-serif">${esc(name)}</div>` : ''}
             ${d.jobTitle ? `<div style="color:#ffffff;font-size:12px;line-height:16px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>` : ''}
             ${d.company  ? `<div style="color:#ffffff;font-size:11px;line-height:19px;font-family:Arial,sans-serif">${esc(d.company)}</div>` : ''}
             ${d.mentionsLegal ? `<div style="color:#ffffff;font-size:9.5px;line-height:19px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>` : ''}
           </td>
+          ${hasSides ? side(logo) : ''}
         </tr>
       </table>
     </td>
   </tr>
   <tr>
     <td bgcolor="#ffffff" style="background:#ffffff;background-image:linear-gradient(#ffffff,#ffffff);padding:12px 14px;border:1px solid #e8e8e8;border-top:none;border-radius:0 0 10px 10px">
-      ${contacts ? `<div style="margin-bottom:8px">${contacts}</div>` : ''}
-      ${icons ? `<div style="margin-bottom:8px">${icons}</div>` : ''}
-      ${cta}
+      ${bottom}
     </td>
   </tr>
 </table>`;
