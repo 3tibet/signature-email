@@ -889,12 +889,19 @@ function contactItems(d) {
   return items;
 }
 
+// Pastille = pictogramme blanc (icons/pad-*.png) aplati sur la couleur exacte par
+// images.weserv.nl : une image n'est jamais repeinte par le mode sombre d'Outlook,
+// contrairement à un bgcolor (fond éclairci → pictogramme blanc illisible).
+function pastilleImg(glyph, color, size, radius, alt = '') {
+  const src = `https://images.weserv.nl/?url=${ICONS_BASE.replace(/^https?:\/\//, '')}/pad-${glyph}.png&bg=${color.replace('#', '')}`;
+  return `<img src="${src}" width="${size}" height="${size}" alt="${alt}" style="display:block;width:${size}px;height:${size}px;border:0;border-radius:${radius}px">`;
+}
+
 function contactTable(items, color, size, gap) {
   if (!items.length) return '';
   const spacer = `<tr><td colspan="2" height="${gap}" style="height:${gap}px;font-size:1px;line-height:1px">&nbsp;</td></tr>`;
   const rows = items.map((it, i) => (i ? spacer : '') +
-    `<tr><td bgcolor="${color}" valign="middle" style="background:${color};border-radius:4px;padding:3px;vertical-align:middle">` +
-    `<img src="${ICONS_BASE}/${it.type}-white.png" width="10" height="10" alt="" style="display:block;width:10px;height:10px;border:0"></td>` +
+    `<tr><td valign="middle" style="vertical-align:middle">${pastilleImg(it.type, color, 16, 4)}</td>` +
     `<td valign="middle" style="padding-left:6px;vertical-align:middle;font-size:${size}px;line-height:${size + 4}px;font-family:Arial,sans-serif;color:${color}">` +
     `<a href="${it.href}" target="_blank" rel="noopener" style="color:${color};text-decoration:none">${esc(it.text)}</a></td></tr>`).join('');
   return `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate">${rows}</table>`;
@@ -926,10 +933,9 @@ function socialIconsHTML(d) {
     const bg  = iconMode === 'brand' ? brandColor : s.bg;
     const href = safeHref(d[k]);
     return `<td style="padding:0 5px 0 0">` +
-      `<table cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate"><tr><td bgcolor="${bg}" style="background:${bg};border-radius:5px;padding:4px">` +
       `<a href="${href}" target="_blank" rel="noopener" style="text-decoration:none">` +
-      `<img src="${ICONS_BASE}/social-${s.glyph || k}.png" width="14" height="14" alt="${k}" style="display:block;width:14px;height:14px;border:0">` +
-      `</a></td></tr></table></td>`;
+      pastilleImg(`social-${s.glyph || k}`, bg, 22, 5, k) +
+      `</a></td>`;
   }).join('');
   return `<table cellpadding="0" cellspacing="0" border="0"><tr>${cells}</tr></table>`;
 }
@@ -1103,10 +1109,11 @@ function logoRatio(src) {
 function genModern(d, color, name) {
   const photoSrc = resolveImageUrl(d.photoUrl) || photoData;
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
-  // bgcolor (attribut HTML, pas juste CSS) + fond blanc porté par la cellule plutôt
-  // qu'une bordure CSS : Gmail en mode sombre repeint sinon border:white en gris.
+  // Pas de cellule blanche derrière la photo : Outlook Windows ignore border-radius et
+  // l'affichait en carré (noirci en mode sombre). Une photo PNG déjà ronde (coins
+  // transparents, anneau cuit) reste ronde partout.
   const photo = photoSrc
-    ? `<table align="center" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto"><tr><td bgcolor="#ffffff" style="background:#ffffff;background-image:linear-gradient(#ffffff,#ffffff);border-radius:50%;padding:0"><img src="${photoSrc}" width="54" height="54" style="width:54px;height:54px;min-width:54px;max-width:none;border-radius:50%;object-fit:cover;display:block" alt=""></td></tr></table>`
+    ? `<img src="${photoSrc}" width="54" height="54" style="width:54px;height:54px;min-width:54px;max-width:none;border-radius:50%;object-fit:cover;display:block;margin:0 auto;border:0" alt="">`
     : '';
   const LOGO_H = 26;
   const ratio = logoSrc ? logoRatio(logoSrc) : null;
