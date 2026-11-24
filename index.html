@@ -1126,7 +1126,8 @@ function genModern(d, color, name) {
   // Colonnes photo et logo de même largeur : le bloc texte reste centré dans le bandeau.
   const SIDE_W = 80;
   const ratio = logoSrc ? logoRatio(logoSrc) : null;
-  const logoH = ratio ? Math.min(26, Math.round(SIDE_W / ratio)) : 26;
+  const LOGO_MAX_H = 78;
+  const logoH = ratio ? Math.min(LOGO_MAX_H, Math.round(SIDE_W / ratio)) : LOGO_MAX_H;
   const logoW = ratio ? Math.round(logoH * ratio) : null;
   const logo = logoSrc
     ? `${logoLink(d, `<img src="${logoSrc}" ${logoW ? `width="${logoW}" ` : ''}height="${logoH}" style="${logoW ? `width:${logoW}px;` : 'width:auto;'}height:${logoH}px;min-width:0;max-width:${SIDE_W}px;display:block;margin:0 auto;border:0" alt="">`)}`
