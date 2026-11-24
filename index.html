@@ -1060,9 +1060,6 @@ function genClassic(d, color, name) {
   const photo = photoSrc
     ? `<img src="${photoSrc}" width="82" height="82" style="width:82px;height:82px;border-radius:50%;object-fit:cover;display:block;margin:0 auto" alt="">`
     : '';
-  const logo = logoSrc
-    ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:left">${logoLink(d, `<img src="${logoSrc}" width="80" style="width:80px;height:auto;display:block;border:0" alt="">`)}</div>`
-    : '';
   // centered logo variant when shown under the photo (used in the left cell)
   const logoUnderPhoto = logoSrc
     ? `<div style="margin-top:12px;padding-top:10px;border-top:1px solid #ebebeb;text-align:center">${logoLink(d, `<img src="${logoSrc}" width="80" style="width:80px;height:auto;display:block;margin:0 auto;border:0" alt="">`)}</div>`
@@ -1083,15 +1080,18 @@ function genClassic(d, color, name) {
   if (d.ctaText && safeHref(d.ctaLink))
     info += `<div style="margin-top:12px">${ctaButton(safeHref(d.ctaLink), ctaLabel(d.ctaText, color, true), { bg: color, fg: '#ffffff', padY: 8, padX: 18, radius: 6, size: 13 })}</div>`;
 
-    if (photo) {
+  // Sans photo, le logo prend sa place en tête (colonne de gauche).
+  const lead = photo
+    ? photo + logoUnderPhoto
+    : (logoSrc ? logoLink(d, `<img src="${logoSrc}" width="80" style="width:80px;height:auto;display:block;margin:0 auto;border:0" alt="">`) : '');
+  if (lead) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
   <tr>
-    <td style="padding-right:18px;vertical-align:middle;border-right:3px solid ${color};text-align:center">${photo}${logoUnderPhoto}</td>
+    <td style="padding-right:18px;vertical-align:middle;border-right:3px solid ${color};text-align:center">${lead}</td>
     <td style="padding-left:18px;vertical-align:top">${info}</td>
   </tr>
 </table>`;
   }
-  info += logo;
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
   <tr>
     <td style="border-left:3px solid ${color};padding-left:14px;vertical-align:top">${info}</td>
@@ -1156,14 +1156,14 @@ function genModern(d, color, name) {
     <td bgcolor="${color}" style="background:${color};padding:14px 14px;border-radius:10px 10px 0 0">
       <table cellpadding="0" cellspacing="0" border="0" width="100%">
         <tr>
-          ${hasSides ? side(photo) : ''}
+          ${hasSides ? side(photo || logo) : ''}
           <td valign="top" style="padding:0 ${hasSides ? 10 : 0}px;vertical-align:top;text-align:left">
             ${name ? `<div style="color:white;font-size:16px;line-height:19px;font-weight:700;font-family:Arial,sans-serif">${esc(name)}</div>` : ''}
             ${d.jobTitle ? `<div style="color:#ffffff;font-size:12px;line-height:16px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>` : ''}
             ${d.company  ? `<div style="color:#ffffff;font-size:11px;line-height:19px;font-family:Arial,sans-serif">${esc(d.company)}</div>` : ''}
             ${d.mentionsLegal ? `<div style="color:#ffffff;font-size:9.5px;line-height:19px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>` : ''}
           </td>
-          ${hasSides ? side(logo) : ''}
+          ${hasSides ? side(photo ? logo : '') : ''}
         </tr>
       </table>
     </td>
@@ -1181,9 +1181,6 @@ function genMinimal(d, color, name) {
   const logoSrc  = resolveImageUrl(d.logoUrl)  || logoData;
   const photo = photoSrc
     ? `<img src="${photoSrc}" width="58" height="58" style="width:58px;height:58px;border-radius:50%;object-fit:cover;display:block;margin:0 auto" alt="">`
-    : '';
-  const logo = logoSrc
-    ? `<div style="margin-top:8px;text-align:left">${logoLink(d, `<img src="${logoSrc}" width="80" style="width:80px;height:auto;display:block;border:0" alt="">`)}</div>`
     : '';
   const logoUnderPhoto = logoSrc
     ? `<div style="margin-top:8px;text-align:center">${logoLink(d, `<img src="${logoSrc}" width="80" style="width:80px;height:auto;display:block;margin:0 auto;border:0" alt="">`)}</div>`
@@ -1209,15 +1206,18 @@ function genMinimal(d, color, name) {
   if (icons)      inner += `<div style="margin-top:4px;margin-bottom:4px">${icons}</div>`;
   inner += cta;
 
-  if (photo) {
+  // Sans photo, le logo prend sa place en tête (colonne de gauche).
+  const lead = photo
+    ? photo + logoUnderPhoto
+    : (logoSrc ? logoLink(d, `<img src="${logoSrc}" width="80" style="width:80px;height:auto;display:block;margin:0 auto;border:0" alt="">`) : '');
+  if (lead) {
     return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
   <tr>
-    <td style="padding-right:14px;vertical-align:middle;text-align:center">${photo}${logoUnderPhoto}</td>
+    <td style="padding-right:14px;vertical-align:middle;text-align:center">${lead}</td>
     <td style="vertical-align:top;border-left:2px solid ${color};padding-left:14px">${inner}</td>
   </tr>
 </table>`;
   }
-  inner += logo;
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
   <tr>
     <td style="border-left:2px solid ${color};padding-left:14px;vertical-align:top">${inner}</td>
@@ -1245,12 +1245,12 @@ function genVertical(d, color, name) {
 
   return `<table cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif">
   <tr><td style="padding-bottom:2px">
-    ${photo}
+    ${photo || (logoSrc ? logoLink(d, `<img src="${logoSrc}" width="80" style="width:80px;height:auto;display:block;border:0" alt="">`) : '')}
     ${name ? `<div style="font-size:16px;font-weight:700;color:${color};margin-top:10px;font-family:Arial,sans-serif">${esc(name)}</div>` : ''}
     ${d.jobTitle ? `<div style="font-size:12px;color:#888;margin-top:3px;font-family:Arial,sans-serif">${esc(d.jobTitle)}</div>` : ''}
     ${d.company  ? `<div style="font-size:11.5px;color:#aaa;margin-top:1px;font-family:Arial,sans-serif">${esc(d.company)}</div>` : ''}
     ${d.mentionsLegal ? `<div style="font-size:9.5px;color:#777;margin-top:4px;white-space:pre-line;font-family:Arial,sans-serif">${esc(d.mentionsLegal)}</div>` : ''}
-    ${logo}
+    ${photo ? logo : ''}
   </td></tr>
   ${contact || icons ? `<tr><td>${sep}${contact}${icons ? `<div style="margin-top:8px">${icons}</div>` : ''}</td></tr>` : ''}
   ${cta ? `<tr><td>${cta}</td></tr>` : ''}
